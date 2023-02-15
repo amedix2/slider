@@ -103,17 +103,18 @@ def main_bot(dp):
                         BASE_SESSIONS[idx].get_connection().send(bytes(message.from_user.username, 'utf-8'))
                         await bot.send_message(message.from_user.id, "Авторизация прошла успешно!\n\n"
                                                                      "Нажмите >>> для того, чтобы переключится на "
-                                                                     "следущий"
-                                                                     "слайд.\n"
+                                                                     "следущий "
+                                                                     "слайд.\n\n"
                                                                      "Нажмите <<< для того, чтобы переключится на "
-                                                                     "предыдуший"
+                                                                     "предыдуший "
                                                                      "слайд.",
                                                reply_markup=keybd)
                     except Exception:
                         await bot.send_message(message.from_user.id, 'Не удалось подключится к компьютеру, так как '
                                                                      'удаленный хост разорвал соединение. Попробуйте '
                                                                      'перезапустить приложение на вашем '
-                                                                     'компьютере.\n\nВведите новый код:')
+                                                                     'компьютере.\n\nВведите новый код:',
+                                               reply_markup=types.ReplyKeyboardRemove())
                         BASE_REG[message.from_user.id] = True
                         BASE_SESSIONS.pop(idx)
                 else:
@@ -133,7 +134,8 @@ def main_bot(dp):
                         await bot.send_message(message.from_user.id, 'Не удалось подключится к компьютеру, так как '
                                                                      'удаленный хост разорвал соединение. Попробуйте '
                                                                      'перезапустить приложение на вашем '
-                                                                     'компьютере.\n\nВведите новый код:')
+                                                                     'компьютере.\n\nВведите новый код:',
+                                               reply_markup=types.ReplyKeyboardRemove())
                         BASE_REG[message.from_user.id] = True
                         BASE_SESSIONS.pop(idx)
                 elif message.text == '<<<':
@@ -144,7 +146,8 @@ def main_bot(dp):
                         await bot.send_message(message.from_user.id, 'Не удалось подключится к компьютеру, так как '
                                                                      'удаленный хост разорвал соединение. Попробуйте '
                                                                      'перезапустить приложение на вашем '
-                                                                     'компьютере.\n\nВведите новый код:')
+                                                                     'компьютере.\n\nВведите новый код:',
+                                               reply_markup=types.ReplyKeyboardRemove())
                         BASE_REG[message.from_user.id] = True
                         BASE_SESSIONS.pop(idx)
                 else:
@@ -155,7 +158,7 @@ def main_bot(dp):
 
 
 if __name__ == '__main__':
-    th1 = Thread(target=conns, args=(sock,))
+    th1 = Thread(target=conns, args=(sock,), daemon=True)
     th2 = Thread(target=main_bot, args=(dp,))
     th1.start()
     th2.start()
