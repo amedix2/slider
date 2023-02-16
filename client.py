@@ -5,44 +5,53 @@ made by amedix
 """
 import socket
 import keyboard
-import sys, os
+import sys, os, time
 from threading import Thread
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
 from PyQt5.QtWidgets import QMainWindow, QLabel
 
+
+exit_flag = True
+
 sock = socket.socket()
 
 
-def conn_to_serv(selfobj):
-    global sock
-    sock = socket.socket()
+def keybd(s, selfobj):
+    global exit_flag
     try:
-        sock.connect(('92.241.226.146', 11111))
-        room_id = str(sock.recv(1024))[2:-1]
-        connection.set_room(selfobj, room_id)
-        username = str(sock.recv(1024))[2:-1]
-        connection.set_username(selfobj, username)
-        try:
-            while True:
-                try:
-                    data = sock.recv(1024)
-                except Exception:
-                    connection.set_room('Подключение к серверу...')
-                print(data)
-                if data == b'close room':
-                    sock.close()
-                    break
-                elif data == b'right':
-                    keyboard.send('right')
-                elif data == b'left':
-                    keyboard.send('left')
-
-        except Exception:
-            print('server disconnect')
+        data = s.recv(1024)
+        print(data)
+        if data == b'right':
+            keyboard.send('right')
+        elif data == b'left':
+            keyboard.send('left')
+        else:
+            print('unknown command')
     except Exception:
-        connection.set_room(selfobj, 'error')
+        exit_flag = False
+        connection.set_room(selfobj, 'connection error')
+        print('disconnected')
+
+
+def conn_to_serv(selfobj):
+    global exit_flag, sock
+    sock = socket.socket()
+    sock.connect(('92.241.226.146', 11111))
+    room_id = str(sock.recv(1024))[2:-1]
+    connection.set_room(selfobj, room_id)
+    print(1)
+    username = str(sock.recv(1024))[2:-1]
+    connection.set_username(selfobj, username)
+    print(2)
+    exit_flag = True
+    while exit_flag:
+        if exit_flag:
+            keybd(sock, selfobj)
+        else:
+            break
+    sock.close()
 
 
 def GUI():
@@ -90,7 +99,9 @@ class main_window(QMainWindow):
         self.win3.show()
 
     def closeEvent(self, event):
+        global exit_flag
         sock.send(b'disconnect')
+        exit_flag = False
         sock.close()
         sys.exit()
 
@@ -102,6 +113,10 @@ class connection(QWidget):
         self.initUI()
 
     def initUI(self):
+        global exit_flag
+
+        exit_flag = True
+
         self.setGeometry(470, 150, 600, 300)
         self.setWindowTitle('Connection')
 
@@ -140,8 +155,11 @@ class connection(QWidget):
         self.rl.setText(f'{room}')
 
     def closeEvent(self, event):
+        global exit_flag
         self.us.setText(f'Пользователь не подключен')
+        exit_flag = False
         sock.send(b'disconnect')
+        sock.close()
 
 
 class feedback(QWidget):
