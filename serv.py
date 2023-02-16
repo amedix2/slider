@@ -1,6 +1,10 @@
+"""
+
+made by amedix
+
+"""
 import socket
 import random
-import time
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.utils import executor
@@ -21,7 +25,7 @@ BASE_SESSIONS = []
 BASE_REG = {}
 
 
-class session():
+class session:
     def __init__(self, room, conn, addr, user_id):
         self.connection = conn
         self.address = addr
@@ -59,8 +63,7 @@ def conns(sock):
         r = room_id()
         conn.send(bytes(r, 'utf-8'))
         print(f'room_id sent to {addr}')
-        sess = session(r, conn, addr, 0)
-        BASE_SESSIONS.append(sess)
+        BASE_SESSIONS.append(session(r, conn, addr, 0))
 
 
 def main_bot(dp):
