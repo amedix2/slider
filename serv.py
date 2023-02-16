@@ -5,6 +5,8 @@ made by amedix
 """
 import socket
 import random
+import time
+
 import requests
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
@@ -63,6 +65,7 @@ def conns(sock):
     while True:
         conn, addr = sock.accept()
         print(f'connected {addr}')
+        time.sleep(0.1)
         r = room_id()
         conn.send(bytes(r, 'utf-8'))
         print(f'room_id sent to {addr}')
@@ -77,21 +80,24 @@ def disconns(conn, addr):
         data = conn.recv(1024)
     except Exception:
         pass
-    print(data)
+    print(data, addr)
     idx = -1
     for i in range(len(BASE_SESSIONS)):
         if addr == BASE_SESSIONS[i].get_address():
             idx = i
             break
-    params = {
-        'chat_id': BASE_SESSIONS[idx].get_uid(),
-        'text': 'Удаленный компьютер прервал соединение. Введи новый код для подключения:'
-    }
-    response = requests.get('https://api.telegram.org/bot'+TOKEN+'/sendMessage', params=params)
-    print(response)
-    BASE_REG[BASE_SESSIONS[idx].get_uid()] = True
-    BASE_SESSIONS.pop(idx)
-    BASE_LISTEN.pop(idx)
+    if idx != -1:
+        params = {
+            'chat_id': BASE_SESSIONS[idx].get_uid(),
+            'text': 'Удаленный компьютер прервал соединение. Введи новый код для подключения:'
+        }
+
+        response = requests.get('https://api.telegram.org/bot'+TOKEN+'/sendMessage', params=params)
+        print(response)
+        if BASE_SESSIONS[idx].get_uid() != 0:
+            BASE_REG[BASE_SESSIONS[idx].get_uid()] = True
+        BASE_SESSIONS.pop(idx)
+        BASE_LISTEN.pop(idx)
 
 
 def main_bot(dp):
@@ -111,7 +117,6 @@ def main_bot(dp):
 
     @dp.message_handler(content_types=['text'])
     async def main(message: types.Message):
-        print(message.chat.id, message.from_user.id, type(message.chat.id), type(message.from_user.id))
         btn_l = KeyboardButton('<<<')
         btn_r = KeyboardButton('>>>')
 
@@ -129,27 +134,32 @@ def main_bot(dp):
                         idx = i
                         break
                 if idx != -1:
-                    BASE_SESSIONS[idx].set_uid(message.from_user.id)
-                    BASE_REG[message.from_user.id] = False
-                    try:
-                        BASE_SESSIONS[idx].get_connection().send(bytes(message.from_user.username, 'utf-8'))
-                        await bot.send_message(message.from_user.id, "Авторизация прошла успешно!\n\n"
-                                                                     "Нажмите >>> для того, чтобы переключится на "
-                                                                     "следущий "
-                                                                     "слайд.\n\n"
-                                                                     "Нажмите <<< для того, чтобы переключится на "
-                                                                     "предыдуший "
-                                                                     "слайд.",
-                                               reply_markup=keybd)
-                    except Exception:
-                        await bot.send_message(message.from_user.id, 'Не удалось подключится к компьютеру, так как '
-                                                                     'удаленный хост разорвал соединение. Попробуйте '
-                                                                     'перезапустить приложение на вашем '
-                                                                     'компьютере.\n\nВведите новый код:',
-                                               reply_markup=types.ReplyKeyboardRemove())
-                        BASE_REG[message.from_user.id] = True
-                        BASE_SESSIONS.pop(idx)
-                        BASE_LISTEN.pop(idx)
+                    if BASE_SESSIONS[idx].get_uid() != 0:
+                        await bot.send_message(message.from_user.id, f'Сессия {BASE_SESSIONS[idx].get_room_id()} уже '
+                                                                     f'занята другим пользователем. ')
+                    else:
+                        BASE_SESSIONS[idx].set_uid(message.from_user.id)
+                        BASE_REG[message.from_user.id] = False
+                        try:
+                            print(1)
+                            BASE_SESSIONS[idx].get_connection().send(bytes(message.from_user.username, 'utf-8'))
+                            await bot.send_message(message.from_user.id, "Авторизация прошла успешно!\n\n"
+                                                                         "Нажмите >>> для того, чтобы переключится на "
+                                                                         "следущий "
+                                                                         "слайд.\n\n"
+                                                                         "Нажмите <<< для того, чтобы переключится на "
+                                                                         "предыдуший "
+                                                                         "слайд.",
+                                                   reply_markup=keybd)
+                        except Exception:
+                            await bot.send_message(message.from_user.id, 'Не удалось подключится к компьютеру, так как '
+                                                                         'удаленный хост разорвал соединение. Попробуйте '
+                                                                         'перезапустить приложение на вашем '
+                                                                         'компьютере.\n\nВведите новый код:',
+                                                   reply_markup=types.ReplyKeyboardRemove())
+                            BASE_REG[message.from_user.id] = True
+                            BASE_SESSIONS.pop(idx)
+                            BASE_LISTEN.pop(idx)
                 else:
                     await bot.send_message(message.from_user.id, "Ошибка авторизации: сессия не найден.\n"
                                                                  "Проверьте правильность введненного с экрана кода"
@@ -160,34 +170,38 @@ def main_bot(dp):
                     if message.from_user.id == BASE_SESSIONS[i].get_uid():
                         idx = i
                         break
-                if message.text == '>>>':
-                    try:
-                        BASE_SESSIONS[idx].get_connection().send(bytes('right', 'utf-8'))
-                        await bot.send_message(message.from_user.id, "Включаем следущий слайд...")
-                    except Exception:
-                        await bot.send_message(message.from_user.id, 'Не удалось подключится к компьютеру, так как '
-                                                                     'удаленный хост разорвал соединение. Попробуйте '
-                                                                     'перезапустить приложение на вашем '
-                                                                     'компьютере.\n\nВведите новый код:',
-                                               reply_markup=types.ReplyKeyboardRemove())
-                        BASE_REG[message.from_user.id] = True
-                        BASE_SESSIONS.pop(idx)
-                        BASE_LISTEN.pop(idx)
-                elif message.text == '<<<':
-                    try:
-                        BASE_SESSIONS[idx].get_connection().send(bytes('left', 'utf-8'))
-                        await bot.send_message(message.from_user.id, "Включаем предыдущий слайд...")
-                    except Exception:
-                        await bot.send_message(message.from_user.id, 'Не удалось подключится к компьютеру, так как '
-                                                                     'удаленный хост разорвал соединение. Попробуйте '
-                                                                     'перезапустить приложение на вашем '
-                                                                     'компьютере.\n\nВведите новый код:',
-                                               reply_markup=types.ReplyKeyboardRemove())
-                        BASE_REG[message.from_user.id] = True
-                        BASE_SESSIONS.pop(idx)
-                        BASE_LISTEN.pop(idx)
+                if idx != -1:
+                    if message.text == '>>>':
+                        try:
+                            BASE_SESSIONS[idx].get_connection().send(bytes('right', 'utf-8'))
+                            await bot.send_message(message.from_user.id, "Включаем следущий слайд...")
+                        except Exception:
+                            await bot.send_message(message.from_user.id, 'Не удалось подключится к компьютеру, так как '
+                                                                         'удаленный хост разорвал соединение. Попробуйте '
+                                                                         'перезапустить приложение на вашем '
+                                                                         'компьютере.\n\nВведите новый код:',
+                                                   reply_markup=types.ReplyKeyboardRemove())
+                            BASE_REG[message.from_user.id] = True
+                            BASE_SESSIONS.pop(idx)
+                            BASE_LISTEN.pop(idx)
+                    elif message.text == '<<<':
+                        try:
+                            BASE_SESSIONS[idx].get_connection().send(bytes('left', 'utf-8'))
+                            await bot.send_message(message.from_user.id, "Включаем предыдущий слайд...")
+                        except Exception:
+                            await bot.send_message(message.from_user.id, 'Не удалось подключится к компьютеру, так как '
+                                                                         'удаленный хост разорвал соединение. Попробуйте '
+                                                                         'перезапустить приложение на вашем '
+                                                                         'компьютере.\n\nВведите новый код:',
+                                                   reply_markup=types.ReplyKeyboardRemove())
+                            BASE_REG[message.from_user.id] = True
+                            BASE_SESSIONS.pop(idx)
+                            BASE_LISTEN.pop(idx)
+                    else:
+                        await bot.send_message(message.from_user.id, "Такой команды нет.")
                 else:
-                    await bot.send_message(message.from_user.id, "Такой команды нет.")
+                    await bot.send_message(message.from_user.id,
+                                           'Вы не прошли регистрацию!\nИспользуйте команду /start или /reg')
 
         print(BASE_SESSIONS)
         print(BASE_LISTEN)
