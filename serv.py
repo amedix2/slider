@@ -5,6 +5,7 @@ made by amedix
 """
 import socket
 import random
+import requests
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.utils import executor
@@ -18,10 +19,13 @@ sock.listen(1000)
 
 print('server is running')
 
+TOKEN = '5937626790:AAGLqO3_UbPa9I144s7sBp28Ddi7ymcG4NI'
+
 bot = Bot(token='5937626790:AAGLqO3_UbPa9I144s7sBp28Ddi7ymcG4NI')
 dp = Dispatcher(bot)
 
 BASE_SESSIONS = []
+BASE_LISTEN = []
 BASE_REG = {}
 
 
@@ -29,7 +33,7 @@ class session:
     def __init__(self, room, conn, addr, user_id):
         self.connection = conn
         self.address = addr
-        self.uid = user_id
+        self.uid = int(user_id)
         self.room_id = room
 
     def get_room_id(self):
@@ -42,15 +46,14 @@ class session:
         return self.address
 
     def get_uid(self):
-        return self.uid
+        return int(self.uid)
 
     def set_uid(self, us):
-        self.uid = us
+        self.uid = int(us)
 
 
 def room_id():
     return f'{chr(random.randint(65, 90))}{chr(random.randint(65, 90))}' \
-           f'{chr(random.randint(65, 90))}{chr(random.randint(65, 90))}' \
            f'{chr(random.randint(65, 90))}{chr(random.randint(65, 90))}'
 
 
@@ -64,6 +67,31 @@ def conns(sock):
         conn.send(bytes(r, 'utf-8'))
         print(f'room_id sent to {addr}')
         BASE_SESSIONS.append(session(r, conn, addr, 0))
+        BASE_LISTEN.append(Thread(target=disconns, args=(conn, addr), daemon=True))
+        BASE_LISTEN[-1].start()
+
+
+def disconns(conn, addr):
+    data = b''
+    try:
+        data = conn.recv(1024)
+    except Exception:
+        pass
+    print(data)
+    idx = -1
+    for i in range(len(BASE_SESSIONS)):
+        if addr == BASE_SESSIONS[i].get_address():
+            idx = i
+            break
+    params = {
+        'chat_id': BASE_SESSIONS[idx].get_uid(),
+        'text': 'Удаленный компьютер прервал соединение. Введи новый код для подключения:'
+    }
+    response = requests.get('https://api.telegram.org/bot'+TOKEN+'/sendMessage', params=params)
+    print(response)
+    BASE_REG[BASE_SESSIONS[idx].get_uid()] = True
+    BASE_SESSIONS.pop(idx)
+    BASE_LISTEN.pop(idx)
 
 
 def main_bot(dp):
@@ -71,18 +99,19 @@ def main_bot(dp):
     async def process_start_command(message: types.Message):
         await bot.send_message(message.from_user.id,
                                "Привет!\nЭтот бот управляет презентацией\n\nВведи код с экрана для "
-                               "того, чтобы подключится и использовать приложение Slider")
+                               "того, чтобы подключится и использовать приложение Slider:")
         BASE_REG[message.from_user.id] = True
 
     @dp.message_handler(commands=['reg'])
     async def process_start_command(message: types.Message):
         await bot.send_message(message.from_user.id,
                                "Введи код с экрана для "
-                               "того, чтобы подключится и использовать приложение Slider")
+                               "того, чтобы подключится и использовать приложение Slider:")
         BASE_REG[message.from_user.id] = True
 
     @dp.message_handler(content_types=['text'])
     async def main(message: types.Message):
+        print(message.chat.id, message.from_user.id, type(message.chat.id), type(message.from_user.id))
         btn_l = KeyboardButton('<<<')
         btn_r = KeyboardButton('>>>')
 
@@ -120,6 +149,7 @@ def main_bot(dp):
                                                reply_markup=types.ReplyKeyboardRemove())
                         BASE_REG[message.from_user.id] = True
                         BASE_SESSIONS.pop(idx)
+                        BASE_LISTEN.pop(idx)
                 else:
                     await bot.send_message(message.from_user.id, "Ошибка авторизации: сессия не найден.\n"
                                                                  "Проверьте правильность введненного с экрана кода"
@@ -129,6 +159,7 @@ def main_bot(dp):
                 for i in range(len(BASE_SESSIONS)):
                     if message.from_user.id == BASE_SESSIONS[i].get_uid():
                         idx = i
+                        break
                 if message.text == '>>>':
                     try:
                         BASE_SESSIONS[idx].get_connection().send(bytes('right', 'utf-8'))
@@ -141,6 +172,7 @@ def main_bot(dp):
                                                reply_markup=types.ReplyKeyboardRemove())
                         BASE_REG[message.from_user.id] = True
                         BASE_SESSIONS.pop(idx)
+                        BASE_LISTEN.pop(idx)
                 elif message.text == '<<<':
                     try:
                         BASE_SESSIONS[idx].get_connection().send(bytes('left', 'utf-8'))
@@ -153,17 +185,19 @@ def main_bot(dp):
                                                reply_markup=types.ReplyKeyboardRemove())
                         BASE_REG[message.from_user.id] = True
                         BASE_SESSIONS.pop(idx)
+                        BASE_LISTEN.pop(idx)
                 else:
-                    await bot.send_message(message.from_user.id, "Такой команды нет")
+                    await bot.send_message(message.from_user.id, "Такой команды нет.")
 
         print(BASE_SESSIONS)
+        print(BASE_LISTEN)
         print(BASE_REG)
 
 
 if __name__ == '__main__':
-    th1 = Thread(target=conns, args=(sock,), daemon=True)
-    th2 = Thread(target=main_bot, args=(dp,))
-    th1.start()
-    th2.start()
+    conns_thread = Thread(target=conns, args=(sock,), daemon=True)
+    bot_thread = Thread(target=main_bot, args=(dp,))
+    conns_thread.start()
+    bot_thread.start()
 
     executor.start_polling(dp, skip_updates=True)
