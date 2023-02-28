@@ -31,7 +31,7 @@ def keybd(s, selfobj):
             print('unknown command')
     except Exception:
         exit_flag = False
-        connection.set_room(selfobj, 'connection error')
+        connection.set_room(selfobj, 'error')
         print('disconnected')
 
 
