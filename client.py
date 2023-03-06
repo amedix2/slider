@@ -5,7 +5,8 @@ made by amedix
 """
 import socket
 import keyboard
-import sys, os, time
+import sys
+import os
 from threading import Thread
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
@@ -38,13 +39,11 @@ def keybd(s, selfobj):
 def conn_to_serv(selfobj):
     global exit_flag, sock
     sock = socket.socket()
-    sock.connect(('92.241.226.146', 11111))
+    sock.connect(('91.146.59.187', 11111))
     room_id = str(sock.recv(1024))[2:-1]
     connection.set_room(selfobj, room_id)
-    print(1)
     username = str(sock.recv(1024))[2:-1]
     connection.set_username(selfobj, username)
-    print(2)
     exit_flag = True
     while exit_flag:
         if exit_flag:
