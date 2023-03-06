@@ -6,7 +6,6 @@ made by amedix
 import socket
 import random
 import time
-
 import requests
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
@@ -16,7 +15,7 @@ from threading import Thread
 
 sock = socket.socket()
 
-sock.bind((socket.gethostname(), 11111))
+sock.bind(('192.168.2.17', 11111))
 sock.listen(1000)
 
 print('server is running')
@@ -141,8 +140,7 @@ def main_bot(dp):
                         BASE_SESSIONS[idx].set_uid(message.from_user.id)
                         BASE_REG[message.from_user.id] = False
                         try:
-                            print(1)
-                            BASE_SESSIONS[idx].get_connection().send(bytes(message.from_user.username, 'utf-8'))
+                            BASE_SESSIONS[idx].get_connection().send(bytes(str(message.from_user.username), 'utf-8'))
                             await bot.send_message(message.from_user.id, "Авторизация прошла успешно!\n\n"
                                                                          "Нажмите >>> для того, чтобы переключится на "
                                                                          "следущий "
@@ -203,7 +201,8 @@ def main_bot(dp):
                     await bot.send_message(message.from_user.id,
                                            'Вы не прошли регистрацию!\nИспользуйте команду /start или /reg')
 
-        print(BASE_SESSIONS)
+        print(message.text)
+        print([i.get_room_id() for i in BASE_SESSIONS], [i.get_address() for i in BASE_SESSIONS], [i.get_uid() for i in BASE_SESSIONS])
         print(BASE_LISTEN)
         print(BASE_REG)
 
@@ -214,4 +213,4 @@ if __name__ == '__main__':
     conns_thread.start()
     bot_thread.start()
 
-    executor.start_polling(dp, skip_updates=True)
+    executor.start_polling(dp)
