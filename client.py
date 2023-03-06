@@ -11,8 +11,7 @@ from threading import Thread
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
-from PyQt5.QtWidgets import QMainWindow, QLabel
-
+from PyQt5.QtWidgets import QMainWindow, QLabel, QFileDialog
 
 exit_flag = True
 
@@ -39,18 +38,22 @@ def keybd(s, selfobj):
 def conn_to_serv(selfobj):
     global exit_flag, sock
     sock = socket.socket()
-    sock.connect(('91.146.59.187', 11111))
-    room_id = str(sock.recv(1024))[2:-1]
-    connection.set_room(selfobj, room_id)
-    username = str(sock.recv(1024))[2:-1]
-    connection.set_username(selfobj, username)
-    exit_flag = True
-    while exit_flag:
-        if exit_flag:
-            keybd(sock, selfobj)
-        else:
-            break
-    sock.close()
+    try:
+        sock.connect(('91.146.59.187', 11111))
+        room_id = str(sock.recv(1024))[2:-1]
+        connection.set_room(selfobj, room_id)
+        username = str(sock.recv(1024))[2:-1]
+        connection.set_username(selfobj, f'Подключенный пользователь\n{username}', False)
+        exit_flag = True
+        while exit_flag:
+            if exit_flag:
+                keybd(sock, selfobj)
+            else:
+                break
+        sock.close()
+    except Exception:
+        connection.set_room(selfobj, 'error')
+        connection.set_username(selfobj, 'Проверьте ваше интернет соединение', True)
 
 
 def GUI():
@@ -66,25 +69,37 @@ class main_window(QMainWindow):
         self.initUI()
 
     def initUI(self):
-        self.setGeometry(150, 150, 300, 300)
+        self.setGeometry(560, 200, 800, 600)
         self.setWindowTitle('Slider')
 
-        self.btn1 = QPushButton('Подключить\nустройство', self)
-        self.btn1.setFont(QFont("Times", 20, QFont.Bold))
-        self.btn1.resize(220, 100)
-        self.btn1.move(40, 60)
+        self.btn_c = QPushButton('Подключить\nустройство', self)
+        self.btn_c.setFont(QFont("Times", 60, QFont.Bold))
+        self.btn_c.resize(600, 300)
+        self.btn_c.move(100, 20)
 
-        self.btn2 = QPushButton('QR-код', self)
-        self.btn2.resize(100, 40)
-        self.btn2.move(40, 180)
+        self.btn_f = QPushButton('Загрузить\nтекстовый файл', self)
+        self.btn_f.setFont(QFont("Times", 18, QFont.Bold))
+        self.btn_f.resize(290, 100)
+        self.btn_f.move(100, 350)
 
-        self.btn3 = QPushButton('Обратная связь', self)
-        self.btn3.resize(100, 40)
-        self.btn3.move(160, 180)
+        self.btn_i = QPushButton('Инструкция', self)
+        self.btn_i.setFont(QFont("Times", 18, QFont.Bold))
+        self.btn_i.resize(290, 100)
+        self.btn_i.move(410, 350)
 
-        self.btn1.clicked.connect(self.con)
-        self.btn2.clicked.connect(self.qr)
-        self.btn3.clicked.connect(self.fb)
+        self.btn_q = QPushButton('QR-код', self)
+        self.btn_q.setFont(QFont("Times", 18, QFont.Bold))
+        self.btn_q.resize(290, 100)
+        self.btn_q.move(100, 480)
+
+        self.btn_b = QPushButton('Обратная связь', self)
+        self.btn_b.setFont(QFont("Times", 18, QFont.Bold))
+        self.btn_b.resize(290, 100)
+        self.btn_b.move(410, 480)
+
+        self.btn_c.clicked.connect(self.con)
+        self.btn_q.clicked.connect(self.qr)
+        self.btn_b.clicked.connect(self.fb)
 
     def con(self):
         self.win1 = connection(self)
@@ -142,13 +157,15 @@ class connection(QWidget):
         self.ab.move(0, 190)
         self.ab.setAlignment(Qt.AlignCenter)
 
-        conn_thread = Thread(target=conn_to_serv, args=(self, ), daemon=True)
+        conn_thread = Thread(target=conn_to_serv, args=(self,), daemon=True)
         conn_thread.start()
 
-    def set_username(self, usn):
-        self.us.setText(f'Подключенный пользователь\n{usn}')
-        self.ab.setText('Теперь вы можете свернуть приложение и открыть PowerPoint\n'
-                        'Для остановки сессии закройте это окно\n\nПриятного использования!')
+    def set_username(self, usn, er_flag):
+        self.us.setText(f'{usn}')
+        self.ab.setText(' ')
+        if not er_flag:
+            self.ab.setText('Теперь вы можете свернуть приложение и открыть PowerPoint\n'
+                            'Для остановки сессии закройте это окно\n\nПриятного использования!')
 
     def set_room(self, room):
         self.rl.setText(f'{room}')
