@@ -22,7 +22,7 @@ print('server is running')
 
 TOKEN = '5937626790:AAGLqO3_UbPa9I144s7sBp28Ddi7ymcG4NI'
 
-bot = Bot(token='5937626790:AAGLqO3_UbPa9I144s7sBp28Ddi7ymcG4NI')
+bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 
 BASE_SESSIONS = []

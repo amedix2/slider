@@ -98,13 +98,10 @@ class main_window(QMainWindow):
         self.btn_b.resize(290, 100)
         self.btn_b.move(410, 480)
 
-
         self.btn_c.clicked.connect(self.con)
         self.btn_f.clicked.connect(self.file)
         self.btn_q.clicked.connect(self.qr)
         self.btn_b.clicked.connect(self.fb)
-
-        self.file = ''
 
     def file(self):
         global path
