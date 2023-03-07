@@ -7,6 +7,7 @@ import socket
 import keyboard
 import sys
 import os
+from pathlib import Path
 from threading import Thread
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
@@ -14,6 +15,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
 from PyQt5.QtWidgets import QMainWindow, QLabel, QFileDialog
 
 exit_flag = True
+path = ''
 
 sock = socket.socket()
 
@@ -97,9 +99,25 @@ class main_window(QMainWindow):
         self.btn_b.resize(290, 100)
         self.btn_b.move(410, 480)
 
+
         self.btn_c.clicked.connect(self.con)
+        self.btn_f.clicked.connect(self.file)
         self.btn_q.clicked.connect(self.qr)
         self.btn_b.clicked.connect(self.fb)
+
+        self.file = ''
+
+    def file(self):
+        global path
+        path = QFileDialog.getOpenFileName(directory=f'{Path.home()}\Desktop', filter='*.txt')[0]
+        print(path)
+        if path != '':
+            self.btn_f.setText(f'Загружен файл\n{path.split("/")[-1]}')
+        else:
+            self.btn_f.setText('Загрузить\nтекстовый файл')
+
+    def guide(self):
+        pass
 
     def con(self):
         self.win1 = connection(self)
@@ -114,7 +132,10 @@ class main_window(QMainWindow):
 
     def closeEvent(self, event):
         global exit_flag
-        sock.send(b'disconnect')
+        try:
+            sock.send(b'disconnect')
+        except Exception:
+            pass
         exit_flag = False
         sock.close()
         sys.exit()
@@ -156,9 +177,11 @@ class connection(QWidget):
         self.ab.resize(600, 100)
         self.ab.move(0, 190)
         self.ab.setAlignment(Qt.AlignCenter)
-
-        conn_thread = Thread(target=conn_to_serv, args=(self,), daemon=True)
-        conn_thread.start()
+        try:
+            conn_thread = Thread(target=conn_to_serv, args=(self,), daemon=True)
+            conn_thread.start()
+        except Exception:
+            pass
 
     def set_username(self, usn, er_flag):
         self.us.setText(f'{usn}')
@@ -174,8 +197,12 @@ class connection(QWidget):
         global exit_flag
         self.us.setText(f'Пользователь не подключен')
         exit_flag = False
-        sock.send(b'disconnect')
-        sock.close()
+        try:
+            sock.send(b'disconnect')
+            sock.close()
+        except Exception:
+            pass
+
 
 
 class feedback(QWidget):
