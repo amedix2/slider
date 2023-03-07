@@ -7,7 +7,6 @@ import socket
 import keyboard
 import sys
 import os
-from pathlib import Path
 from threading import Thread
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
