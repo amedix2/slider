@@ -20,23 +20,6 @@ path = ''
 sock = socket.socket()
 
 
-def send_file(sock, key):
-    global path
-    print('path:', path)
-    if path != '':
-        file = open(path, "rb")
-        while True:
-            file_data = file.read(4096)
-            print(file_data)
-            sock.send(file_data)
-            if not file_data:
-                sock.send(bytes(key, 'utf-8'))
-                print(key)
-                break
-    else:
-        sock.send(bytes(key, 'utf-8'))
-
-
 def keybd(s, selfobj):
     global exit_flag
     try:
@@ -52,6 +35,26 @@ def keybd(s, selfobj):
         exit_flag = False
         connection.set_room(selfobj, 'error')
         print('disconnected')
+
+
+def send_file(sock, key):
+    global path
+    print('path:', path)
+    if path != '':
+        try:
+            file = open(path, "rb")
+            while True:
+                file_data = file.read(4096)
+                if file_data:
+                    print(file_data)
+                    sock.send(file_data)
+                else:
+                    sock.send(bytes(key, 'utf-8'))
+                    break
+        except Exception:
+            sock.send(bytes(key, 'utf-8'))
+    else:
+        sock.send(bytes(key, 'utf-8'))
 
 
 def conn_to_serv(selfobj):
@@ -150,11 +153,12 @@ class main_window(QMainWindow):
     def closeEvent(self, event):
         global exit_flag
         try:
-            sock.send(b'disconnect')
+            print('dis')
+            sock.send(b'dis')
+            sock.close()
         except Exception:
             pass
         exit_flag = False
-        sock.close()
         sys.exit()
 
 
@@ -215,7 +219,8 @@ class connection(QWidget):
         self.us.setText(f'Пользователь не подключен')
         exit_flag = False
         try:
-            sock.send(b'disconnect')
+            print('dis')
+            sock.send(b'dis')
             sock.close()
         except Exception:
             pass

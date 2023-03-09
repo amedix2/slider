@@ -14,7 +14,7 @@ from threading import Thread
 
 sock = socket.socket()
 
-sock.bind((socket.gethostname(), 11111))
+sock.bind(('192.168.2.17', 11111))
 sock.listen(1000)
 
 print('server is running')
@@ -36,6 +36,8 @@ class session:
         self.uid = 0
         self.room_id = room
         self.text_lst = text_lst
+        if self.text_lst == ['', 'Конец презентации']:
+            self.text_lst = ['']
         self.idx = 0
 
     def get_room_id(self):
@@ -53,11 +55,16 @@ class session:
     def set_uid(self, us):
         self.uid = int(us)
 
-    def get_text(self, idx):
-        return self.text_lst[idx]
+    def get_text(self):
+        return self.text_lst[self.idx]
 
-    def set_idx(self, idx):
-        pass
+    def change_idx(self, val):
+        print(self.text_lst)
+        self.idx += val
+        if self.idx < 0:
+            self.idx = 0
+        if self.idx == len(self.text_lst):
+            self.idx = len(self.text_lst) - 1
 
 
 def key_generator(n):
@@ -74,10 +81,11 @@ def get_file(conn, key):
             data = conn.recv(4096)
             s += str(data)[2:-1]
             s = s.replace('\\r\\n', '')
+            print(s)
             if s.find(key) != -1:
-                return s.split('###')[:-17]
+                return s[:-16].split('###')
     except Exception:
-        return s
+        return s[:-16].split('###')
 
 
 def conns(sock):
@@ -89,7 +97,7 @@ def conns(sock):
             key = key_generator(16)
             conn.send(bytes(key, 'utf-8'))
             temp_str = get_file(conn, key)
-            print(temp_str)
+            temp_str.append('Конец презентации')
             r = key_generator(4)
             conn.send(bytes(r, 'utf-8'))
             print(f'room_id sent to {addr}')
@@ -101,30 +109,26 @@ def conns(sock):
 
 
 def disconns(conn, addr):
-    data = b''
-    try:
-        data = conn.recv()
-    except Exception:
-        pass
-    if data == b'disconnect':
-        print(data, addr)
-        idx = -1
-        for i in range(len(BASE_SESSIONS)):
-            if addr == BASE_SESSIONS[i].get_address():
-                idx = i
-                break
-        if idx != -1:
-            params = {
-                'chat_id': BASE_SESSIONS[idx].get_uid(),
-                'text': 'Удаленный компьютер прервал соединение. Введи новый код для подключения:'
-            }
+    data = conn.recv(4)
+    print(data, addr)
+    print('try to dis')
+    idx = -1
+    for i in range(len(BASE_SESSIONS)):
+        if addr == BASE_SESSIONS[i].get_address():
+            idx = i
+            break
+    if idx != -1:
+        params = {
+            'chat_id': BASE_SESSIONS[idx].get_uid(),
+            'text': 'Удаленный компьютер прервал соединение. Введи новый код для подключения:'
+        }
 
-            response = requests.get('https://api.telegram.org/bot' + TOKEN + '/sendMessage', params=params)
-            print(response)
-            if BASE_SESSIONS[idx].get_uid() != 0:
-                BASE_REG[BASE_SESSIONS[idx].get_uid()] = True
-            BASE_SESSIONS.pop(idx)
-            BASE_LISTEN.pop(idx)
+        response = requests.get('https://api.telegram.org/bot' + TOKEN + '/sendMessage', params=params)
+        print(response)
+        if BASE_SESSIONS[idx].get_uid() != 0:
+            BASE_REG[BASE_SESSIONS[idx].get_uid()] = True
+        BASE_SESSIONS.pop(idx)
+        BASE_LISTEN.pop(idx)
 
 
 def main_bot(dp):
@@ -177,6 +181,10 @@ def main_bot(dp):
                                                                          "предыдуший "
                                                                          "слайд.",
                                                    reply_markup=keybd)
+                            try:
+                                await bot.send_message(message.from_user.id, BASE_SESSIONS[idx].get_text())
+                            except Exception:
+                                pass
                         except Exception:
                             await bot.send_message(message.from_user.id, 'Не удалось подключится к компьютеру, так как '
                                                                          'удаленный хост разорвал соединение. Попробуйте '
@@ -201,6 +209,11 @@ def main_bot(dp):
                         try:
                             BASE_SESSIONS[idx].get_connection().send(bytes('right', 'utf-8'))
                             await bot.send_message(message.from_user.id, "Включаем следущий слайд...")
+                            BASE_SESSIONS[idx].change_idx(1)
+                            try:
+                                await bot.send_message(message.from_user.id, BASE_SESSIONS[idx].get_text())
+                            except Exception:
+                                pass
                         except Exception:
                             await bot.send_message(message.from_user.id, 'Не удалось подключится к компьютеру, так как '
                                                                          'удаленный хост разорвал соединение. Попробуйте '
@@ -214,6 +227,11 @@ def main_bot(dp):
                         try:
                             BASE_SESSIONS[idx].get_connection().send(bytes('left', 'utf-8'))
                             await bot.send_message(message.from_user.id, "Включаем предыдущий слайд...")
+                            BASE_SESSIONS[idx].change_idx(-1)
+                            try:
+                                await bot.send_message(message.from_user.id, BASE_SESSIONS[idx].get_text())
+                            except Exception:
+                                pass
                         except Exception:
                             await bot.send_message(message.from_user.id, 'Не удалось подключится к компьютеру, так как '
                                                                          'удаленный хост разорвал соединение. Попробуйте '
