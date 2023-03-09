@@ -7,6 +7,7 @@ import socket
 import keyboard
 import sys
 import os
+from pathlib import Path
 from threading import Thread
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
@@ -19,10 +20,27 @@ path = ''
 sock = socket.socket()
 
 
+def send_file(sock, key):
+    global path
+    print('path:', path)
+    if path != '':
+        file = open(path, "rb")
+        while True:
+            file_data = file.read(4096)
+            print(file_data)
+            sock.send(file_data)
+            if not file_data:
+                sock.send(bytes(key, 'utf-8'))
+                print(key)
+                break
+    else:
+        sock.send(bytes(key, 'utf-8'))
+
+
 def keybd(s, selfobj):
     global exit_flag
     try:
-        data = s.recv(1024)
+        data = s.recv(8)
         print(data)
         if data == b'right':
             keyboard.send('right')
@@ -40,8 +58,11 @@ def conn_to_serv(selfobj):
     global exit_flag, sock
     sock = socket.socket()
     try:
-        sock.connect(('91.146.59.187', 11111))
-        room_id = str(sock.recv(1024))[2:-1]
+        sock.connect(('217.114.157.45', 11111))
+        key = str(sock.recv(16))[2:-1]
+        print(key)
+        send_file(sock, key)
+        room_id = str(sock.recv(4))[2:-1]
         connection.set_room(selfobj, room_id)
         username = str(sock.recv(1024))[2:-1]
         connection.set_username(selfobj, f'Подключенный пользователь\n{username}', False)
@@ -198,7 +219,6 @@ class connection(QWidget):
             sock.close()
         except Exception:
             pass
-
 
 
 class feedback(QWidget):
