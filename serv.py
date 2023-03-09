@@ -14,7 +14,7 @@ from threading import Thread
 
 sock = socket.socket()
 
-sock.bind(('192.168.2.17', 11111))
+sock.bind((socket.gethostname(), 11111))
 sock.listen(1000)
 
 print('server is running')
