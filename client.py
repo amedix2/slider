@@ -173,29 +173,29 @@ class connection(QWidget):
 
         exit_flag = True
 
-        self.setGeometry(470, 150, 600, 300)
+        self.setGeometry(560, 200, 800, 600)
         self.setWindowTitle('Connection')
 
         self.rl = QLabel(self)
-        self.rl.setFont(QFont("Times", 60, QFont.Bold))
+        self.rl.setFont(QFont("Times", 180, QFont.Bold))
         self.rl.setText('connecting...')
-        self.rl.resize(600, 100)
-        self.rl.move(0, 30)
+        self.rl.resize(800, 600)
+        self.rl.move(0, -150)
         self.rl.setAlignment(Qt.AlignCenter)
 
         self.us = QLabel(self)
-        self.us.setFont(QFont("Times", 20, QFont.Bold))
+        self.us.setFont(QFont("Times", 33, QFont.Bold))
         self.us.setText(f'Пользователь не подключен')
-        self.us.resize(600, 100)
-        self.us.move(0, 120)
+        self.us.resize(800, 600)
+        self.us.move(0, 50)
         self.us.setAlignment(Qt.AlignCenter)
 
         self.ab = QLabel(self)
-        self.ab.setFont(QFont("Times", 8, QFont.Cursive))
+        self.ab.setFont(QFont("Times", 15, QFont.Cursive))
         self.ab.setText(
             'Отсканируйсте QR-код с помощью камеры на вашем смартфоне\n или самостоятельно найдите @remoteamedixbot в Telegram.\n\n'
             'Далее, отправте боту код, который вы видите на экране.')
-        self.ab.resize(600, 100)
+        self.ab.resize(800, 600)
         self.ab.move(0, 190)
         self.ab.setAlignment(Qt.AlignCenter)
         try:
