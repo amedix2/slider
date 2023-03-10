@@ -14,6 +14,7 @@ from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
 from PyQt5.QtWidgets import QMainWindow, QLabel, QFileDialog
 
+
 exit_flag = True
 path = ''
 
@@ -78,7 +79,7 @@ def conn_to_serv(selfobj):
         sock.close()
     except Exception:
         connection.set_room(selfobj, 'error')
-        connection.set_username(selfobj, 'Проверьте ваше интернет соединение', True)
+        connection.set_username(selfobj, 'Проверьте ваше\nинтернет соединение', True)
 
 
 def GUI():
@@ -98,34 +99,35 @@ class main_window(QMainWindow):
         self.setWindowTitle('Slider')
 
         self.btn_c = QPushButton('Подключить\nустройство', self)
-        self.btn_c.setFont(QFont("Times", 60, QFont.Bold))
-        self.btn_c.resize(600, 300)
-        self.btn_c.move(100, 20)
+        self.btn_c.setFont(QFont("Times", 65, QFont.Bold))
+        self.btn_c.resize(760, 300)
+        self.btn_c.move(20, 20)
 
         self.btn_f = QPushButton('Загрузить\nтекстовый файл', self)
-        self.btn_f.setFont(QFont("Times", 18, QFont.Bold))
-        self.btn_f.resize(290, 100)
-        self.btn_f.move(100, 350)
+        self.btn_f.setFont(QFont("Times", 23, QFont.Bold))
+        self.btn_f.resize(370, 110)
+        self.btn_f.move(20, 340)
 
         self.btn_i = QPushButton('Инструкция', self)
-        self.btn_i.setFont(QFont("Times", 18, QFont.Bold))
-        self.btn_i.resize(290, 100)
-        self.btn_i.move(410, 350)
+        self.btn_i.setFont(QFont("Times", 23, QFont.Bold))
+        self.btn_i.resize(370, 110)
+        self.btn_i.move(410, 340)
 
         self.btn_q = QPushButton('QR-код', self)
-        self.btn_q.setFont(QFont("Times", 18, QFont.Bold))
-        self.btn_q.resize(290, 100)
-        self.btn_q.move(100, 480)
+        self.btn_q.setFont(QFont("Times", 23, QFont.Bold))
+        self.btn_q.resize(370, 110)
+        self.btn_q.move(20, 470)
 
         self.btn_b = QPushButton('Обратная связь', self)
-        self.btn_b.setFont(QFont("Times", 18, QFont.Bold))
-        self.btn_b.resize(290, 100)
-        self.btn_b.move(410, 480)
+        self.btn_b.setFont(QFont("Times", 23, QFont.Bold))
+        self.btn_b.resize(370, 110)
+        self.btn_b.move(410, 470)
 
         self.btn_c.clicked.connect(self.con)
         self.btn_f.clicked.connect(self.file)
         self.btn_q.clicked.connect(self.qr)
         self.btn_b.clicked.connect(self.fb)
+        self.btn_i.clicked.connect(self.ins)
 
     def file(self):
         global path
@@ -144,11 +146,17 @@ class main_window(QMainWindow):
         self.win1.show()
 
     def qr(self):
-        os.system('start qr-code.png')
+        self.win2 = QR(self)
+        self.win2.show()
+        #os.system('start qr-code.png')
 
     def fb(self):
         self.win3 = feedback(self)
         self.win3.show()
+
+    def ins(self):
+        self.win4 = Instruction(self)
+        self.win4.show()
 
     def closeEvent(self, event):
         global exit_flag
@@ -177,7 +185,7 @@ class connection(QWidget):
         self.setWindowTitle('Connection')
 
         self.rl = QLabel(self)
-        self.rl.setFont(QFont("Times", 180, QFont.Bold))
+        self.rl.setFont(QFont("Times", 70, QFont.Bold))
         self.rl.setText('connecting...')
         self.rl.resize(800, 600)
         self.rl.move(0, -150)
@@ -213,6 +221,9 @@ class connection(QWidget):
 
     def set_room(self, room):
         self.rl.setText(f'{room}')
+        font_size = 170 - room.count('W') * 7
+        self.rl.setFont(QFont("Times", font_size, QFont.Bold))
+
 
     def closeEvent(self, event):
         global exit_flag
@@ -232,15 +243,36 @@ class feedback(QWidget):
         self.initUI()
 
     def initUI(self):
-        self.setGeometry(1090, 150, 530, 300)
+        self.setGeometry(1380, 625, 520, 175)
         self.setWindowTitle('Feedback')
 
         self.us = QLabel(self)
         self.us.setFont(QFont("Times", 30, QFont.Bold))
         self.us.setText(f'amedix2@gmail.com\nt.me/amedix2\nvk.com/amedix')
-        self.us.resize(530, 300)
+        self.us.resize(520, 175)
         self.us.move(0, 0)
         self.us.setAlignment(Qt.AlignCenter)
+
+
+class QR(QWidget):
+    def __init__(self, *a):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
+        self.setGeometry(20, 200, 520, 600)
+        self.setWindowTitle('QR-code')
+
+
+
+class Instruction(QWidget):
+    def __init__(self, *a):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
+        self.setGeometry(1380, 200, 520, 375)
+        self.setWindowTitle('Instruction')
 
 
 if __name__ == '__main__':
