@@ -99,7 +99,6 @@ class main_window(QMainWindow):
         self.setGeometry(560, 200, 800, 600)
         self.setWindowTitle('Slider')
         self.setStyleSheet('background-color:#E8E8E8;')
-        #shadow = QGraphicsDropShadowEffect(blurRadius=5, xOffset=3, yOffset=3)
 
         self.btn_c = QPushButton('Подключить\nустройство', self)
         self.btn_c.setFont(QFont("Times", 65, QFont.Bold))
