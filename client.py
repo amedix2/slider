@@ -10,15 +10,14 @@ import os
 from pathlib import Path
 from threading import Thread
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
-from PyQt5.QtWidgets import QMainWindow, QLabel, QFileDialog, QProgressBar
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QFont, QPixmap
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGraphicsDropShadowEffect, QMainWindow, QLabel,\
+    QFileDialog, QProgressBar
 
 exit_flag = True
 path = ''
 
-COLOR_LIGHT_GREY = '#EEEEEE'
+COLOR_LIGHT_GREY = '#DEDEDE'
 
 sock = socket.socket()
 
@@ -97,7 +96,6 @@ class main_window(QMainWindow):
         self.initUI()
 
     def initUI(self):
-
         self.color_btn = COLOR_LIGHT_GREY
 
         self.setGeometry(560, 200, 800, 600)
@@ -109,36 +107,46 @@ class main_window(QMainWindow):
         self.btn_c.resize(760, 300)
         self.btn_c.move(20, 20)
         self.btn_c.setStyleSheet(f'background-color: {self.color_btn}; border-radius: 15')
+        self.btn_c.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=15, xOffset=7, yOffset=7))
 
         self.btn_f = QPushButton('Загрузить\nтекстовый файл', self)
         self.btn_f.setFont(QFont("Times", 23, QFont.Bold))
         self.btn_f.resize(370, 110)
         self.btn_f.move(20, 340)
         self.btn_f.setStyleSheet(f'background-color: {self.color_btn}; border-radius: 15')
+        self.btn_f.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=15, xOffset=7, yOffset=7))
 
         self.btn_i = QPushButton('Инструкция', self)
         self.btn_i.setFont(QFont("Times", 23, QFont.Bold))
         self.btn_i.resize(370, 110)
         self.btn_i.move(410, 340)
         self.btn_i.setStyleSheet(f'background-color: {self.color_btn}; border-radius: 15')
+        self.btn_i.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=15, xOffset=7, yOffset=7))
 
         self.btn_q = QPushButton('QR-код', self)
         self.btn_q.setFont(QFont("Times", 23, QFont.Bold))
         self.btn_q.resize(370, 110)
         self.btn_q.move(20, 470)
         self.btn_q.setStyleSheet(f'background-color: {self.color_btn}; border-radius: 15')
+        self.btn_q.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=15, xOffset=7, yOffset=7))
 
         self.btn_b = QPushButton('Обратная связь', self)
         self.btn_b.setFont(QFont("Times", 23, QFont.Bold))
         self.btn_b.resize(370, 110)
         self.btn_b.move(410, 470)
         self.btn_b.setStyleSheet(f'background-color: {self.color_btn}; border-radius: 15')
+        self.btn_b.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=15, xOffset=7, yOffset=7))
 
         self.btn_c.clicked.connect(self.con)
         self.btn_f.clicked.connect(self.file)
         self.btn_q.clicked.connect(self.qr)
         self.btn_b.clicked.connect(self.fb)
         self.btn_i.clicked.connect(self.ins)
+
+        self.opened_con = False
+
+    def con_close(self):
+        self.opened_con = False
 
     def file(self):
         global path
@@ -153,15 +161,17 @@ class main_window(QMainWindow):
         pass
 
     def con(self):
-        self.win1 = connection(self)
-        self.win1.show()
+        if not self.opened_con:
+            self.opened_con = True
+            self.win1 = connection(self)
+            self.win1.show()
 
     def qr(self):
         try:
             self.win2 = QR(self)
             self.win2.show()
         except Exception:
-            os.system('start qr-code.png')
+            os.system('start qr-code.jpg')
 
     def fb(self):
         self.win3 = feedback(self)
@@ -195,7 +205,7 @@ class connection(QWidget):
 
         self.setGeometry(560, 200, 800, 600)
         self.setWindowTitle('Connection')
-        self.setStyleSheet('background-color:#cccccc;')
+        self.setStyleSheet(f'background-color:{COLOR_LIGHT_GREY};')
 
         self.rl = QLabel(self)
         self.rl.setFont(QFont("Times", 70, QFont.Bold))
@@ -239,6 +249,7 @@ class connection(QWidget):
 
     def closeEvent(self, event):
         global exit_flag
+        main_window.con_close(self)
         self.us.setText(f'Пользователь не подключен')
         exit_flag = False
         try:
@@ -249,7 +260,6 @@ class connection(QWidget):
             pass
 
 
-
 class feedback(QWidget):
     def __init__(self, *a):
         super().__init__()
@@ -258,7 +268,7 @@ class feedback(QWidget):
     def initUI(self):
         self.setGeometry(1380, 625, 520, 175)
         self.setWindowTitle('Feedback')
-        self.setStyleSheet('background-color:#cccccc;')
+        self.setStyleSheet(f'background-color:{COLOR_LIGHT_GREY};')
 
         self.us = QLabel(self)
         self.us.setFont(QFont("Times", 30, QFont.Bold))
@@ -276,13 +286,15 @@ class QR(QWidget):
     def initUI(self):
         self.setGeometry(20, 200, 520, 600)
         self.setWindowTitle('QR-code')
-        self.setStyleSheet('background-color:#cccccc;')
-        self.pixmap = QPixmap('qr-code.png')
-        self.image = QLabel(self)
-        self.image.resize(520, 600)
-        self.image.move(0, 0)
-        self.image.setPixmap(self.pixmap)
-        self.image.setAlignment(Qt.AlignCenter)
+        self.setStyleSheet(f'background-color:{COLOR_LIGHT_GREY};')
+        print(f'{os.getcwd()}\qr-code.jpg')
+        self.pixmap = QPixmap(f'{os.getcwd()}\qr-code.jpg')
+        print(self.pixmap.isNull())
+        self.lbl = QLabel(self)
+        self.lbl.resize(370, 370)
+        self.lbl.move(100, 100)
+        self.lbl.setPixmap(self.pixmap)
+#        self.image.setAlignment(Qt.AlignCenter)
 
 
 class instruction(QWidget):
@@ -293,7 +305,7 @@ class instruction(QWidget):
     def initUI(self):
         self.setGeometry(1380, 200, 520, 375)
         self.setWindowTitle('Instruction')
-        self.setStyleSheet('background-color:#cccccc;')
+        self.setStyleSheet(f'background-color:{COLOR_LIGHT_GREY};')
 
 
 if __name__ == '__main__':
