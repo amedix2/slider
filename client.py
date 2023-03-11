@@ -15,7 +15,6 @@ from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
 from PyQt5.QtWidgets import QMainWindow, QLabel, QFileDialog
 from PyQt5.QtGui import QPixmap
 
-
 exit_flag = True
 path = ''
 
@@ -65,9 +64,9 @@ def conn_to_serv(selfobj):
     try:
         sock.connect(('217.114.157.45', 11111))
         key = str(sock.recv(16))[2:-1]
-        print(key)
         send_file(sock, key)
         room_id = str(sock.recv(4))[2:-1]
+        print(room_id)
         connection.set_room(selfobj, room_id)
         username = str(sock.recv(1024))[2:-1]
         connection.set_username(selfobj, f'Подключенный пользователь\n{username}', False)
@@ -153,16 +152,18 @@ class main_window(QMainWindow):
         self.win1.show()
 
     def qr(self):
-        self.win2 = QR(self)
-        self.win2.show()
-        #os.system('start qr-code.png')
+        try:
+            self.win2 = QR(self)
+            self.win2.show()
+        except Exception:
+            os.system('start qr-code.png')
 
     def fb(self):
         self.win3 = feedback(self)
         self.win3.show()
 
     def ins(self):
-        self.win4 = Instruction(self)
+        self.win4 = instruction(self)
         self.win4.show()
 
     def closeEvent(self, event):
@@ -195,8 +196,8 @@ class connection(QWidget):
         self.rl = QLabel(self)
         self.rl.setFont(QFont("Times", 70, QFont.Bold))
         self.rl.setText('connecting...')
-        self.rl.resize(800, 600)
-        self.rl.move(0, -150)
+        self.rl.resize(800, 200)
+        self.rl.move(0, 50)
         self.rl.setAlignment(Qt.AlignCenter)
 
         self.us = QLabel(self)
@@ -231,7 +232,6 @@ class connection(QWidget):
         self.rl.setText(f'{room}')
         font_size = 170 - room.count('W') * 7
         self.rl.setFont(QFont("Times", font_size, QFont.Bold))
-
 
     def closeEvent(self, event):
         global exit_flag
@@ -280,8 +280,7 @@ class QR(QWidget):
         self.image.setAlignment(Qt.AlignCenter)
 
 
-
-class Instruction(QWidget):
+class instruction(QWidget):
     def __init__(self, *a):
         super().__init__()
         self.initUI()
