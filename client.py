@@ -17,7 +17,7 @@ from PyQt5.QtGui import QPixmap
 
 exit_flag = True
 path = ''
-#artem loh
+
 COLOR_LIGHT_GREY = '#EEEEEE'
 
 sock = socket.socket()
