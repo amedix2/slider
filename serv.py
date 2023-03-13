@@ -91,7 +91,7 @@ def get_file(conn, key):
             s += data
             if s.find(bytes(key, 'utf-8')) != -1:
                 s = s.decode('utf-8')
-                s = s.replace('\n', '')
+                s = s.replace('\n', '').strip()
                 return s[:-16].split('###')
     except Exception:
         print('exeption((((((')
@@ -107,6 +107,7 @@ def conns(sock):
             key = key_generator(16)
             conn.send(bytes(key, 'utf-8'))
             temp_str = get_file(conn, key)
+            temp_str = list(filter(lambda x: len(x) != 0, temp_str))
             temp_str.append('Конец презентации')
             r = key_generator(4)
             conn.send(bytes(r, 'utf-8'))
@@ -115,7 +116,7 @@ def conns(sock):
             BASE_LISTEN.append(Thread(target=disconns, args=(conn, addr), daemon=True))
             BASE_LISTEN[-1].start()
         except Exception:
-            pass
+            print('conn exeption')
 
 
 def disconns(conn, addr):
