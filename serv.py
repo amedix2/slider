@@ -74,17 +74,26 @@ def key_generator(n):
     return s
 
 
+def replace_shit(s):
+    for i in range(1, len(s) - 1):
+        slash = chr(92)
+        if i == slash and i + 1 == 'n':
+            print(1)
+            s = s[:i] + s[i + 2:]
+    return s
+
+
 def get_file(conn, key):
-    s = ''
+    s = b''
     try:
         while True:
             data = conn.recv(4096)
-            s += str(data)[2:-1]
-            s = s.replace('\\r\\n', '')
-            print(s)
-            if s.find(key) != -1:
+            s += data
+            if s.find(bytes(key, 'utf-8')) != -1:
+                s = s.decode('utf-8')
                 return s[:-16].split('###')
     except Exception:
+        print('exeption((((((')
         return s[:-16].split('###')
 
 

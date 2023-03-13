@@ -15,6 +15,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGraphicsDropSha
     QFileDialog, QProgressBar
 
 exit_flag = True
+opened_con = False
 path = ''
 
 COLOR_LIGHT_GREY = '#DEDEDE'
@@ -44,16 +45,18 @@ def send_file(sock, key):
     print('path:', path)
     if path != '':
         try:
-            file = open(path, "rb", encoding='unicode')
+            file_data = open(path, "r", encoding='utf-8').read()
+            i = 4096
             while True:
-                file_data = file.read(4096)
-                if file_data:
-                    print(file_data)
-                    sock.send(file_data)
+                text = file_data[i - 4096:i]
+                if text:
+                    sock.send(bytes(text, 'utf-8'))
                 else:
                     sock.send(bytes(key, 'utf-8'))
                     break
+                i += 4096
         except Exception:
+            print('exeption((')
             sock.send(bytes(key, 'utf-8'))
     else:
         sock.send(bytes(key, 'utf-8'))
@@ -63,7 +66,7 @@ def conn_to_serv(selfobj):
     global exit_flag, sock
     sock = socket.socket()
     try:
-        sock.connect(('217.114.157.45', 11111))
+        sock.connect(('217.29.179.167', 11111))
         key = str(sock.recv(16))[2:-1]
         send_file(sock, key)
         room_id = str(sock.recv(4))[2:-1]
@@ -143,11 +146,6 @@ class main_window(QMainWindow):
         self.btn_b.clicked.connect(self.fb)
         self.btn_i.clicked.connect(self.ins)
 
-        self.opened_con = False
-
-    def con_close(self):
-        self.opened_con = False
-
     def file(self):
         global path
         path = QFileDialog.getOpenFileName(directory=f'{Path.home()}\Desktop', filter='*.txt')[0]
@@ -161,8 +159,9 @@ class main_window(QMainWindow):
         pass
 
     def con(self):
-        if not self.opened_con:
-            self.opened_con = True
+        global opened_con
+        if not opened_con:
+            opened_con = True
             self.win1 = connection(self)
             self.win1.show()
 
@@ -248,8 +247,8 @@ class connection(QWidget):
         self.rl.setFont(QFont("Times", font_size, QFont.Bold))
 
     def closeEvent(self, event):
-        global exit_flag
-        main_window.con_close(self)
+        global exit_flag, opened_con
+        opened_con = False
         self.us.setText(f'Пользователь не подключен')
         exit_flag = False
         try:
