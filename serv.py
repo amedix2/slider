@@ -91,6 +91,7 @@ def get_file(conn, key):
             s += data
             if s.find(bytes(key, 'utf-8')) != -1:
                 s = s.decode('utf-8')
+                s = s.replace('\n', '')
                 return s[:-16].split('###')
     except Exception:
         print('exeption((((((')
