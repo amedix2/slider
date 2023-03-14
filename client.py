@@ -12,7 +12,7 @@ from threading import Thread
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QPixmap
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGraphicsDropShadowEffect, QMainWindow, QLabel,\
-    QFileDialog, QProgressBar
+    QFileDialog, QMessageBox
 
 exit_flag = True
 opened_con = False
@@ -56,7 +56,6 @@ def send_file(sock, key):
                     break
                 i += 4096
         except Exception:
-            print('exeption((')
             sock.send(bytes(key, 'utf-8'))
     else:
         sock.send(bytes(key, 'utf-8'))
@@ -150,6 +149,10 @@ class main_window(QMainWindow):
         global path
         path = QFileDialog.getOpenFileName(directory=f'{Path.home()}\Desktop', filter='*.txt')[0]
         print(path)
+        if len(open(path, 'r').read()) > 4194304:
+            path = ''
+            print('long')
+            QMessageBox.critical(self, 'too large file', 'Ваш файл превышает размер 4мб')
         if path != '':
             self.btn_f.setText(f'Загружен файл\n{path.split("/")[-1]}')
         else:
