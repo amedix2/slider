@@ -160,19 +160,19 @@ class main_window(QMainWindow):
         global opened_con
         if not opened_con:
             opened_con = True
-            self.win1 = connection(self)
-            self.win1.show()
+            self.connection = connection(self)
+            self.connection.show()
 
     def qr(self):
         os.system('start qr-code.jpg')
 
     def fb(self):
-        self.win3 = feedback(self)
-        self.win3.show()
+        self.feedback = feedback(self)
+        self.feedback.show()
 
     def ins(self):
-        self.win4 = instruction(self)
-        self.win4.show()
+        self.instruction = instruction(self)
+        self.instruction.show()
 
     def closeEvent(self, event):
         global exit_flag
@@ -192,20 +192,32 @@ class file(QWidget):
         self.initUI()
 
     def initUI(self):
-        self.setGeometry(100, 100, 500, 500)
-        self.setWindowTitle('sdjbgs')
-        self.setStyleSheet(f'background-color:{config.colors.light_grey};')
+        self.setGeometry(20, 240, 520, 380)
+        self.setWindowTitle('Add file')
+        self.setStyleSheet(f'background-color: #ffffff;')
 
-        self.btn_1 = QPushButton('открыть редактор', self)
-        self.btn_1.move(0, 0)
-        self.btn_2 = QPushButton('мои проекты', self)
-        self.btn_2.move(0, 50)
-        self.btn_3 = QPushButton('загрузить свой файл', self)
-        self.btn_3.move(0, 100)
+        self.btn_openRedactor = QPushButton('открыть редактор', self)
+        self.btn_openRedactor.setFont(QFont("Times", 23, QFont.Bold))
+        self.btn_openRedactor.resize(480, 100)
+        self.btn_openRedactor.move(20, 20)
+        self.btn_openRedactor.setStyleSheet(f'background-color: {config.colors.light_grey}; border-radius: 15')
+        self.btn_openRedactor.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=15, xOffset=7, yOffset=7))
+        self.btn_myProjects = QPushButton('мои проекты', self)
+        self.btn_myProjects.setFont(QFont("Times", 23, QFont.Bold))
+        self.btn_myProjects.resize(480, 100)
+        self.btn_myProjects.move(20, 140)
+        self.btn_myProjects.setStyleSheet(f'background-color: {config.colors.light_grey}; border-radius: 15')
+        self.btn_myProjects.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=15, xOffset=7, yOffset=7))
+        self.btn_uploadFile = QPushButton('загрузить свой файл', self)
+        self.btn_uploadFile.setFont(QFont("Times", 23, QFont.Bold))
+        self.btn_uploadFile.resize(480, 100)
+        self.btn_uploadFile.move(20, 260)
+        self.btn_uploadFile.setStyleSheet(f'background-color: {config.colors.light_grey}; border-radius: 15')
+        self.btn_uploadFile.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=15, xOffset=7, yOffset=7))
 
-        self.btn_3.clicked.connect(self.other_docs)
-        self.btn_2.clicked.connect(self.my_docs)
-        self.btn_1.clicked.connect(self.redactor)
+        self.btn_uploadFile.clicked.connect(self.other_docs)
+        self.btn_myProjects.clicked.connect(self.my_docs)
+        self.btn_openRedactor.clicked.connect(self.redactor)
 
     def redactor(self):
         self.close()
@@ -219,7 +231,7 @@ class file(QWidget):
             if len(open(self.path, 'r').read()) > 4194304:
                 self.path = ''
                 print('long')
-                QMessageBox.critical(self, 'too large file', 'Ваш файл превышает размер 4мб')
+                QMessageBox.critical(self, 'too large file', 'Ваш файл превышает размер 4мб ')
             else:
                 config.app_settings.set_path(self, self.path)
                 print(config.app_settings.name)
@@ -244,7 +256,7 @@ class connection(QWidget):
 
         self.setGeometry(560, 240, 800, 600)
         self.setWindowTitle('Connection')
-        self.setStyleSheet(f'background-color:{config.colors.light_grey};')
+        self.setStyleSheet(f'background-color: #ffffff;')
 
         self.rl = QLabel(self)
         self.rl.setFont(QFont("Times", 70, QFont.Bold))
@@ -305,14 +317,14 @@ class feedback(QWidget):
         self.initUI()
 
     def initUI(self):
-        self.setGeometry(1380, 665, 520, 175)
+        self.setGeometry(1380, 670, 520, 170)
         self.setWindowTitle('Feedback')
-        self.setStyleSheet(f'background-color:{config.colors.light_grey};')
+        self.setStyleSheet(f'background-color: #ffffff;')
 
         self.us = QLabel(self)
         self.us.setFont(QFont("Times", 30, QFont.Bold))
         self.us.setText(f'amedix2@gmail.com\nt.me/amedix2\nvk.com/amedix')
-        self.us.resize(520, 175)
+        self.us.resize(520, 170)
         self.us.move(0, 0)
         self.us.setAlignment(Qt.AlignCenter)
 
@@ -323,9 +335,10 @@ class instruction(QWidget):
         self.initUI()
 
     def initUI(self):
-        self.setGeometry(1380, 240, 520, 375)
+        self.setGeometry(1380, 240, 520, 380)
         self.setWindowTitle('Instruction')
-        self.setStyleSheet(f'background-color:{config.colors.light_grey};')
+        self.setStyleSheet(f'background-color: #ffffff;')
+
 
 
 if __name__ == '__main__':
