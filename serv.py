@@ -107,6 +107,7 @@ def conns(sock):
             key = key_generator(16)
             conn.send(bytes(key, 'utf-8'))
             temp_str = get_file(conn, key)
+            print(f'file received from {addr}')
             temp_str = list(filter(lambda x: len(x) != 0, temp_str))
             temp_str.append('Конец презентации')
             r = key_generator(4)

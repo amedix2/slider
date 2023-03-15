@@ -3,23 +3,22 @@
 made by amedix and twitmix
 
 """
-import socket
-import keyboard
-import sys
 import os
-import config
+import socket
+import sys
 from pathlib import Path
 from threading import Thread
+import keyboard
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont, QPixmap
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGraphicsDropShadowEffect, QMainWindow, QLabel,\
+from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGraphicsDropShadowEffect, QMainWindow, QLabel, \
     QFileDialog, QMessageBox
+
+import config
+import redactor
 
 exit_flag = True
 opened_con = False
-path = ''
-
-
 
 sock = socket.socket()
 
@@ -27,14 +26,13 @@ sock = socket.socket()
 def keybd(s, selfobj):
     global exit_flag
     try:
-        data = s.recv(8)
+        data = s.recv(8)[2:-1]
         print(data)
-        if data == b'right':
-            keyboard.send('right')
-        elif data == b'left':
-            keyboard.send('left')
-        else:
+        try:
+            keyboard.send(data)
+        except Exception:
             print('unknown command')
+
     except Exception:
         exit_flag = False
         connection.set_room(selfobj, 'error')
@@ -42,7 +40,7 @@ def keybd(s, selfobj):
 
 
 def send_file(sock, key):
-    global path
+    path = config.app_settings.path
     print('path:', path)
     if path != '':
         try:
@@ -66,8 +64,9 @@ def conn_to_serv(selfobj):
     global exit_flag, sock
     sock = socket.socket()
     try:
-        sock.connect(('217.29.179.167', 11111))
+        sock.connect((config.app_settings.ip_serv, 11111))
         key = str(sock.recv(16))[2:-1]
+        connection.set_room(selfobj, 'sending file...')
         send_file(sock, key)
         room_id = str(sock.recv(4))[2:-1]
         print(room_id)
@@ -93,6 +92,10 @@ def GUI():
     sys.exit(app.exec())
 
 
+def redactor_launch():
+    os.system('redactor.py')
+
+
 class main_window(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -101,7 +104,7 @@ class main_window(QMainWindow):
     def initUI(self):
         self.color_btn = config.colors.light_grey
 
-        self.setGeometry(560, 200, 800, 600)
+        self.setGeometry(560, 240, 800, 600)
         self.setWindowTitle('Slider alfa ver 1.0')
         self.setStyleSheet(f'background-color: #ffffff; border-radius: 15')
 
@@ -147,17 +150,8 @@ class main_window(QMainWindow):
         self.btn_i.clicked.connect(self.ins)
 
     def file(self):
-        global path
-        path = QFileDialog.getOpenFileName(directory=f'{Path.home()}\Desktop', filter='*.txt')[0]
-        print(path)
-        if len(open(path, 'r').read()) > 4194304:
-            path = ''
-            print('long')
-            QMessageBox.critical(self, 'too large file', 'Ваш файл превышает размер 4мб')
-        if path != '':
-            self.btn_f.setText(f'Загружен файл\n{path.split("/")[-1]}')
-        else:
-            self.btn_f.setText('Загрузить\nтекстовый файл')
+        self.win_file = file(self)
+        self.win_file.show()
 
     def guide(self):
         pass
@@ -170,11 +164,7 @@ class main_window(QMainWindow):
             self.win1.show()
 
     def qr(self):
-        try:
-            self.win2 = QR(self)
-            self.win2.show()
-        except Exception:
-            os.system('start qr-code.jpg')
+        os.system('start qr-code.jpg')
 
     def fb(self):
         self.win3 = feedback(self)
@@ -196,6 +186,52 @@ class main_window(QMainWindow):
         sys.exit()
 
 
+class file(QWidget):
+    def __init__(self, *a):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
+        self.setGeometry(100, 100, 500, 500)
+        self.setWindowTitle('sdjbgs')
+        self.setStyleSheet(f'background-color:{config.colors.light_grey};')
+
+        self.btn_1 = QPushButton('открыть редактор', self)
+        self.btn_1.move(0, 0)
+        self.btn_2 = QPushButton('мои проекты', self)
+        self.btn_2.move(0, 50)
+        self.btn_3 = QPushButton('загрузить свой файл', self)
+        self.btn_3.move(0, 100)
+
+        self.btn_3.clicked.connect(self.other_docs)
+        self.btn_2.clicked.connect(self.my_docs)
+        self.btn_1.clicked.connect(self.redactor)
+
+    def redactor(self):
+        self.close()
+        th_redactor = Thread(target=redactor_launch, daemon=True)
+        th_redactor.start()
+
+    def open_file(self, dir):
+        self.path = QFileDialog.getOpenFileName(directory=dir, filter='*.txt')[0]
+        print(self.path)
+        if self.path != '':
+            if len(open(self.path, 'r').read()) > 4194304:
+                self.path = ''
+                print('long')
+                QMessageBox.critical(self, 'too large file', 'Ваш файл превышает размер 4мб')
+            else:
+                config.app_settings.set_path(self, self.path)
+                print(config.app_settings.name)
+                self.close()
+
+    def my_docs(self):
+        self.open_file('my docs')
+
+    def other_docs(self):
+        self.open_file(f'{Path.home()}\Desktop')
+
+
 class connection(QWidget):
     def __init__(self, *a):
         super().__init__()
@@ -206,7 +242,7 @@ class connection(QWidget):
 
         exit_flag = True
 
-        self.setGeometry(560, 200, 800, 600)
+        self.setGeometry(560, 240, 800, 600)
         self.setWindowTitle('Connection')
         self.setStyleSheet(f'background-color:{config.colors.light_grey};')
 
@@ -227,8 +263,8 @@ class connection(QWidget):
         self.ab = QLabel(self)
         self.ab.setFont(QFont("Times", 15, QFont.Cursive))
         self.ab.setText(
-            'Отсканируйсте QR-код с помощью камеры на вашем смартфоне\n или самостоятельно найдите @remoteamedixbot в Telegram.\n\n'
-            'Далее, отправте боту код, который вы видите на экране.')
+            'Отсканируйсте QR-код с помощью камеры на вашем смартфоне\n или самостоятельно найдите @remoteamedixbot в '
+            'Telegram.\n\nДалее, отправте боту код, который вы видите на экране.')
         self.ab.resize(800, 200)
         self.ab.move(0, 400)
         self.ab.setAlignment(Qt.AlignCenter)
@@ -269,7 +305,7 @@ class feedback(QWidget):
         self.initUI()
 
     def initUI(self):
-        self.setGeometry(1380, 625, 520, 175)
+        self.setGeometry(1380, 665, 520, 175)
         self.setWindowTitle('Feedback')
         self.setStyleSheet(f'background-color:{config.colors.light_grey};')
 
@@ -281,39 +317,15 @@ class feedback(QWidget):
         self.us.setAlignment(Qt.AlignCenter)
 
 
-class QR(QWidget):
-    def __init__(self, *a):
-        super().__init__()
-        self.initUI()
-
-    def initUI(self):
-        self.setGeometry(20, 200, 520, 600)
-        self.setWindowTitle('QR-code')
-        self.setStyleSheet(f'background-color:{config.colors.light_grey};')
-        print(f'{os.getcwd()}\qr-code.jpg')
-
-        os.system('qr-code.jpg')
-'''
-        self.pixmap = QPixmap(f'{os.getcwd()}\qr-code.jpg')
-        print(self.pixmap.isNull())
-        self.lbl = QLabel(self)
-        self.lbl.resize(370, 370)
-        self.lbl.move(100, 100)
-        self.lbl.setPixmap(self.pixmap)
-#        self.image.setAlignment(Qt.AlignCenter)
-'''
-
-
 class instruction(QWidget):
     def __init__(self, *a):
         super().__init__()
         self.initUI()
 
     def initUI(self):
-        self.setGeometry(1380, 200, 520, 375)
+        self.setGeometry(1380, 240, 520, 375)
         self.setWindowTitle('Instruction')
         self.setStyleSheet(f'background-color:{config.colors.light_grey};')
-
 
 
 if __name__ == '__main__':
