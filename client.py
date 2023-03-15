@@ -1,12 +1,13 @@
 """
 
-made by amedix
+made by amedix and twitmix
 
 """
 import socket
 import keyboard
 import sys
 import os
+import config
 from pathlib import Path
 from threading import Thread
 from PyQt5.QtCore import Qt
@@ -18,7 +19,7 @@ exit_flag = True
 opened_con = False
 path = ''
 
-COLOR_LIGHT_GREY = '#DEDEDE'
+
 
 sock = socket.socket()
 
@@ -98,10 +99,10 @@ class main_window(QMainWindow):
         self.initUI()
 
     def initUI(self):
-        self.color_btn = COLOR_LIGHT_GREY
+        self.color_btn = config.colors.light_grey
 
         self.setGeometry(560, 200, 800, 600)
-        self.setWindowTitle('Slider')
+        self.setWindowTitle('Slider alfa ver 1.0')
         self.setStyleSheet(f'background-color: #ffffff; border-radius: 15')
 
         self.btn_c = QPushButton('Подключить\nустройство', self)
@@ -111,7 +112,7 @@ class main_window(QMainWindow):
         self.btn_c.setStyleSheet(f'background-color: {self.color_btn}; border-radius: 15')
         self.btn_c.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=15, xOffset=7, yOffset=7))
 
-        self.btn_f = QPushButton('Загрузить\nтекстовый файл', self)
+        self.btn_f = QPushButton('Выбрать файл', self)
         self.btn_f.setFont(QFont("Times", 23, QFont.Bold))
         self.btn_f.resize(370, 110)
         self.btn_f.move(20, 340)
@@ -207,7 +208,7 @@ class connection(QWidget):
 
         self.setGeometry(560, 200, 800, 600)
         self.setWindowTitle('Connection')
-        self.setStyleSheet(f'background-color:{COLOR_LIGHT_GREY};')
+        self.setStyleSheet(f'background-color:{config.colors.light_grey};')
 
         self.rl = QLabel(self)
         self.rl.setFont(QFont("Times", 70, QFont.Bold))
@@ -270,7 +271,7 @@ class feedback(QWidget):
     def initUI(self):
         self.setGeometry(1380, 625, 520, 175)
         self.setWindowTitle('Feedback')
-        self.setStyleSheet(f'background-color:{COLOR_LIGHT_GREY};')
+        self.setStyleSheet(f'background-color:{config.colors.light_grey};')
 
         self.us = QLabel(self)
         self.us.setFont(QFont("Times", 30, QFont.Bold))
@@ -288,8 +289,11 @@ class QR(QWidget):
     def initUI(self):
         self.setGeometry(20, 200, 520, 600)
         self.setWindowTitle('QR-code')
-        self.setStyleSheet(f'background-color:{COLOR_LIGHT_GREY};')
+        self.setStyleSheet(f'background-color:{config.colors.light_grey};')
         print(f'{os.getcwd()}\qr-code.jpg')
+
+        os.system('qr-code.jpg')
+'''
         self.pixmap = QPixmap(f'{os.getcwd()}\qr-code.jpg')
         print(self.pixmap.isNull())
         self.lbl = QLabel(self)
@@ -297,6 +301,7 @@ class QR(QWidget):
         self.lbl.move(100, 100)
         self.lbl.setPixmap(self.pixmap)
 #        self.image.setAlignment(Qt.AlignCenter)
+'''
 
 
 class instruction(QWidget):
@@ -307,7 +312,8 @@ class instruction(QWidget):
     def initUI(self):
         self.setGeometry(1380, 200, 520, 375)
         self.setWindowTitle('Instruction')
-        self.setStyleSheet(f'background-color:{COLOR_LIGHT_GREY};')
+        self.setStyleSheet(f'background-color:{config.colors.light_grey};')
+
 
 
 if __name__ == '__main__':

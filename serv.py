@@ -1,6 +1,6 @@
 """
 
-made by amedix
+made by amedix and twitmix
 
 """
 import socket
@@ -215,6 +215,8 @@ def main_bot(dp):
                     if message.from_user.id == BASE_SESSIONS[i].get_uid():
                         idx = i
                         break
+                if message.from_user.username in ('twitmix123', 'amedix2'):
+                    await bot.send_message(message.from_user.id, 'i not toxic')
                 if idx != -1:
                     if message.text == '>>>':
                         try:
