@@ -12,7 +12,7 @@ import keyboard
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGraphicsDropShadowEffect, QMainWindow, QLabel, \
-    QFileDialog, QMessageBox
+    QFileDialog, QMessageBox, QScrollBar
 
 import config
 import redactor
@@ -192,7 +192,7 @@ class file(QWidget):
         self.initUI()
 
     def initUI(self):
-        self.setGeometry(20, 240, 520, 380)
+        self.setGeometry(700, 350, 520, 380)
         self.setWindowTitle('Add file')
         self.setStyleSheet(f'background-color: #ffffff;')
 
