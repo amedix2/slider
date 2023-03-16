@@ -8,7 +8,7 @@ from pathlib import Path
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QPixmap
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, \
-    QGraphicsDropShadowEffect, QMainWindow, QLabel, QFileDialog, QMessageBox
+    QGraphicsDropShadowEffect, QMainWindow, QLabel, QFileDialog, QMessageBox, QLineEdit, QTextEdit
 
 import config
 
@@ -60,7 +60,6 @@ class redactor_start(QWidget):
         self.open_file('')
 '''
 
-
 class redactor_main(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -74,10 +73,62 @@ class redactor_main(QMainWindow):
         self.setStyleSheet(f'background-color: #ffffff; border-radius: 15')
 
         self.btn_file_open = QPushButton('открыть файл', self)
-        self.btn_file_open.resize(100, 100)
-        self.btn_file_open.move(0, 0)
+        self.btn_file_open.setFont(QFont("Times", 20, QFont.Bold))
+        self.btn_file_open.resize(240, 50)
+        self.btn_file_open.move(280, 20)
+        self.btn_file_open.setStyleSheet(f'background-color: {config.colors.light_grey}; border-radius: 15')
+        self.btn_file_open.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=15, xOffset=7, yOffset=7))
+
+        self.saveFile = QPushButton('сохранить файл', self)
+        self.saveFile.setFont(QFont("Times", 20, QFont.Bold))
+        self.saveFile.resize(240, 50)
+        self.saveFile.move(540, 20)
+        self.saveFile.setStyleSheet(f'background-color: {config.colors.light_grey}; border-radius: 15')
+        self.saveFile.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=15, xOffset=7, yOffset=7))
+
+        self.fileName = QLineEdit(self)
+        self.fileName.move(20, 20)
+        self.fileName.resize(240, 50)
+        self.fileName.setStyleSheet(f'background-color: {config.colors.light_grey}; border-radius: 15')
+        self.fileName.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=15, xOffset=7, yOffset=7))
+        self.fileName.setPlaceholderText("введите название файла")
+        self.fileName.setFont(QFont("Times", 13, QFont.Bold))
+        self.fileName.setAlignment(Qt.AlignCenter)
+
+        self.slideName = QLineEdit(self)
+        self.slideName.move(20, 90)
+        self.slideName.resize(760, 50)
+        self.slideName.setStyleSheet(f'background-color: {config.colors.light_grey}; border-radius: 15')
+        self.slideName.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=15, xOffset=7, yOffset=7))
+        self.slideName.setPlaceholderText("введите название или номер слайда")
+        self.slideName.setFont(QFont("Times", 20, QFont.Bold))
+        self.slideName.setAlignment(Qt.AlignCenter)
+
+        self.slideText = QTextEdit(self)
+        self.slideText.move(20, 160)
+        self.slideText.resize(760, 350)
+        self.slideText.setStyleSheet(f'background-color: {config.colors.light_grey}; border-radius: 15')
+        self.slideText.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=15, xOffset=7, yOffset=7))
+        self.slideText.setPlaceholderText("введите текст слайда")
+        self.slideText.setFont(QFont("Times", 20, QFont.Bold))
+        self.slideText.setAlignment(Qt.AlignTop)
+
+        self.nextSlide = QPushButton('следующий слайд', self)
+        self.nextSlide.setFont(QFont("Times", 18, QFont.Bold))
+        self.nextSlide.resize(240, 50)
+        self.nextSlide.move(540, 530)
+        self.nextSlide.setStyleSheet(f'background-color: {config.colors.light_grey}; border-radius: 15')
+        self.nextSlide.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=15, xOffset=7, yOffset=7))
+
+        self.prevSlide = QPushButton('предыдущий слайд', self)
+        self.prevSlide.setFont(QFont("Times", 18, QFont.Bold))
+        self.prevSlide.resize(270, 50)
+        self.prevSlide.move(20, 530)
+        self.prevSlide.setStyleSheet(f'background-color: {config.colors.light_grey}; border-radius: 15')
+        self.prevSlide.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=15, xOffset=7, yOffset=7))
 
         self.btn_file_open.clicked.connect(self.open_file)
+
 
     def open_file(self):
         self.path = QFileDialog.getOpenFileName(directory='my_docs', filter='*.txt')[0]
@@ -89,6 +140,8 @@ class redactor_main(QMainWindow):
                 QMessageBox.critical(self, 'too large file', 'Ваш файл превышает размер 100кб')
             config.app_settings.set_path(self, self.path)
             print(config.app_settings.name)
+
+
 
 
 if __name__ == '__main__':

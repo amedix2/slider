@@ -202,12 +202,14 @@ class file(QWidget):
         self.btn_openRedactor.move(20, 20)
         self.btn_openRedactor.setStyleSheet(f'background-color: {config.colors.light_grey}; border-radius: 15')
         self.btn_openRedactor.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=15, xOffset=7, yOffset=7))
+
         self.btn_myProjects = QPushButton('мои проекты', self)
         self.btn_myProjects.setFont(QFont("Times", 23, QFont.Bold))
         self.btn_myProjects.resize(480, 100)
         self.btn_myProjects.move(20, 140)
         self.btn_myProjects.setStyleSheet(f'background-color: {config.colors.light_grey}; border-radius: 15')
         self.btn_myProjects.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=15, xOffset=7, yOffset=7))
+
         self.btn_uploadFile = QPushButton('загрузить свой файл', self)
         self.btn_uploadFile.setFont(QFont("Times", 23, QFont.Bold))
         self.btn_uploadFile.resize(480, 100)
