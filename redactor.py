@@ -71,7 +71,7 @@ class redactor_main(QMainWindow):
 
         self.setGeometry(560, 240, 800, 600)
         self.setWindowTitle('Slider Redactor')
-        self.setStyleSheet(f'background-color: #ffffff; border-radius: 15')
+        self.setStyleSheet(f'background-color: {config.colors.super_light_grey}; border-radius: 15')
 
         self.btn_file_open = QPushButton('Открыть файл', self)
         self.btn_file_open.setFont(QFont("Times", 20, QFont.Bold))

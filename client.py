@@ -104,8 +104,8 @@ class main_window(QMainWindow):
         self.color_btn = config.colors.light_grey
 
         self.setGeometry(560, 240, 800, 600)
-        self.setWindowTitle('Slider alfa ver 1.0')
-        self.setStyleSheet(f'background-color: #ffffff; border-radius: 15')
+        self.setWindowTitle('Slider alfa ver 1.01')
+        self.setStyleSheet(f'background-color: {config.colors.super_light_grey}; border-radius: 15')
 
         self.btn_c = QPushButton('Подключить\nустройство', self)
         self.btn_c.setFont(QFont("Times", 65, QFont.Bold))
@@ -193,7 +193,7 @@ class file(QWidget):
     def initUI(self):
         self.setGeometry(700, 350, 520, 380)
         self.setWindowTitle('Add file')
-        self.setStyleSheet(f'background-color: #ffffff;')
+        self.setStyleSheet(f'background-color: {config.colors.super_light_grey};')
 
         self.btn_openRedactor = QPushButton('открыть редактор', self)
         self.btn_openRedactor.setFont(QFont("Times", 23, QFont.Bold))
@@ -239,7 +239,7 @@ class file(QWidget):
                 self.close()
 
     def my_docs(self):
-        self.open_file('my docs')
+        self.open_file('my_docs')
 
     def other_docs(self):
         self.open_file(f'{Path.home()}\Desktop')
@@ -257,7 +257,7 @@ class connection(QWidget):
 
         self.setGeometry(560, 240, 800, 600)
         self.setWindowTitle('Connection')
-        self.setStyleSheet(f'background-color: #ffffff;')
+        self.setStyleSheet(f'background-color: {config.colors.light_grey};')
 
         self.rl = QLabel(self)
         self.rl.setFont(QFont("Times", 70, QFont.Bold))
@@ -320,7 +320,7 @@ class feedback(QWidget):
     def initUI(self):
         self.setGeometry(1380, 670, 520, 170)
         self.setWindowTitle('Feedback')
-        self.setStyleSheet(f'background-color: #ffffff;')
+        self.setStyleSheet(f'background-color: {config.colors.light_grey};')
 
         self.us = QLabel(self)
         self.us.setFont(QFont("Times", 30, QFont.Bold))

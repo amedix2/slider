@@ -2,8 +2,8 @@
 
 
 class colors:
-    light_grey = '#DDDDDD'
-    super_light_grey = '#EFEFEF'
+    light_grey = '#c8d1db'
+    super_light_grey = '#dedede'
 
 
 class app_settings:
