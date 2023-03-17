@@ -25,7 +25,7 @@ sock = socket.socket()
 def keybd(s, selfobj):
     global exit_flag
     try:
-        data = s.recv(8)[2:-1]
+        data = str(s.recv(8))[2:-1]
         print(data)
         try:
             keyboard.send(data)
@@ -339,7 +339,6 @@ class instruction(QWidget):
         self.setGeometry(1380, 240, 520, 380)
         self.setWindowTitle('Instruction')
         self.setStyleSheet(f'background-color: #ffffff;')
-
 
 
 if __name__ == '__main__':

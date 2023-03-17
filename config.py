@@ -9,7 +9,7 @@ class colors:
 class app_settings:
     path = ''
     name = ''
-    ip_serv = '92.241.227.146'
+    ip_serv = '217.29.179.167'
 
     def set_path(self, p):
         app_settings.path = p

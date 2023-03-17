@@ -5,6 +5,8 @@ made by amedix and twitmix
 """
 import socket
 import random
+import time
+
 import requests
 import json
 from aiogram import Bot, types
@@ -15,8 +17,8 @@ from threading import Thread
 
 sock = socket.socket()
 
-sock.bind(('192.168.0.160', 11111))
-sock.listen(1000)
+sock.bind(('192.168.2.17', 11111))
+sock.listen(10000)
 
 print('server is running')
 
@@ -34,7 +36,7 @@ class session:
     def __init__(self, room, conn, addr, text_lst):
         self.connection = conn
         self.address = addr
-        self.uid = 0
+        self.uid = ''
         self.room_id = room
         self.text_lst = text_lst
         if self.text_lst == ['', 'Конец презентации']:
@@ -51,10 +53,10 @@ class session:
         return self.address
 
     def get_uid(self):
-        return int(self.uid)
+        return str(self.uid)
 
     def set_uid(self, us):
-        self.uid = int(us)
+        self.uid = str(us)
 
     def get_text(self):
         return self.text_lst[self.idx]
@@ -110,7 +112,8 @@ def conns(sock):
             temp_str = get_file(conn, key)
             print(f'file received from {addr}')
             temp_str = list(filter(lambda x: len(x) != 0, temp_str))
-            temp_str.append('Конец презентации')
+            if len(temp_str) != 0:
+                temp_str.append('Конец презентации')
             r = key_generator(4)
             conn.send(bytes(r, 'utf-8'))
             print(f'room_id sent to {addr}')
@@ -132,14 +135,15 @@ def disconns(conn, addr):
             break
     if idx != -1:
         params = {
-            'chat_id': BASE_SESSIONS[idx].get_uid(),
-            'text': 'Удаленный компьютер прервал соединение.\nПожалуйста, поддержите наш проект:\n\n4584 4328 4684 7920\n\nМы тоже хотим кушать и развивать наше приложени.\n\nВведите новый код для подключения:'
+            'chat_id': int(BASE_SESSIONS[idx].get_uid()),
+            'text': 'Удаленный компьютер прервал соединение.\nПожалуйста, поддержите наш проект:\n\n4584 4328 4684 '
+                    '7920\n\nМы тоже хотим кушать и развивать наше приложени.\n\nВведите новый код для подключения:'
         }
 
         response = requests.get('https://api.telegram.org/bot' + TOKEN + '/sendMessage', params=params)
         print(response)
 
-        if BASE_SESSIONS[idx].get_uid() != 0:
+        if BASE_SESSIONS[idx].get_uid() != '':
             BASE_REG[BASE_SESSIONS[idx].get_uid()] = True
         BASE_SESSIONS.pop(idx)
         BASE_LISTEN.pop(idx)
@@ -151,14 +155,14 @@ def main_bot(dp):
         await bot.send_message(message.from_user.id,
                                "Привет!\nЭтот бот управляет презентацией\n\nВведи код с экрана для "
                                "того, чтобы подключится и использовать приложение Slider:")
-        BASE_REG[message.from_user.id] = True
+        BASE_REG[str(message.from_user.id)] = True
 
     @dp.message_handler(commands=['reg'])
     async def process_start_command(message: types.Message):
         await bot.send_message(message.from_user.id,
                                "Введи код с экрана для "
                                "того, чтобы подключится и использовать приложение Slider:")
-        BASE_REG[message.from_user.id] = True
+        BASE_REG[str(message.from_user.id)] = True
 
     @dp.message_handler(commands=['feedback'])
     async def process_start_command(message: types.Message):
@@ -173,23 +177,23 @@ def main_bot(dp):
         keybd = ReplyKeyboardMarkup()
         keybd.add(btn_l, btn_r)
 
-        if message.from_user.id not in BASE_REG.keys():
+        if str(message.from_user.id) not in BASE_REG.keys():
             await bot.send_message(message.from_user.id, 'Вы не прошли регистрацию!\nИспользуйте команду /start или '
                                                          '/reg')
         else:
-            if BASE_REG[message.from_user.id]:
+            if BASE_REG[str(message.from_user.id)]:
                 idx = -1
                 for i in range(len(BASE_SESSIONS)):
                     if message.text.upper() == BASE_SESSIONS[i].get_room_id():
                         idx = i
                         break
                 if idx != -1:
-                    if BASE_SESSIONS[idx].get_uid() != 0:
+                    if BASE_SESSIONS[idx].get_uid() != '':
                         await bot.send_message(message.from_user.id, f'Сессия {BASE_SESSIONS[idx].get_room_id()} уже '
                                                                      f'занята другим пользователем. ')
                     else:
                         BASE_SESSIONS[idx].set_uid(message.from_user.id)
-                        BASE_REG[message.from_user.id] = False
+                        BASE_REG[str(message.from_user.id)] = False
                         try:
                             BASE_SESSIONS[idx].get_connection().send(bytes(str(message.from_user.username), 'utf-8'))
                             await bot.send_message(message.from_user.id, "Авторизация прошла успешно!\n\n"
@@ -210,7 +214,7 @@ def main_bot(dp):
                                                                          'перезапустить приложение на вашем '
                                                                          'компьютере.\n\nВведите новый код:',
                                                    reply_markup=types.ReplyKeyboardRemove())
-                            BASE_REG[message.from_user.id] = True
+                            BASE_REG[str(message.from_user.id)] = True
                             BASE_SESSIONS.pop(idx)
                             BASE_LISTEN.pop(idx)
                 else:
@@ -220,11 +224,9 @@ def main_bot(dp):
             else:
                 idx = -1
                 for i in range(len(BASE_SESSIONS)):
-                    if message.from_user.id == BASE_SESSIONS[i].get_uid():
+                    if str(message.from_user.id) == BASE_SESSIONS[i].get_uid():
                         idx = i
                         break
-                if message.from_user.username in ('twitmix123', 'amedix2'):
-                    await bot.send_message(message.from_user.id, 'i not toxic')
                 if idx != -1:
                     if message.text == '>>>':
                         try:
@@ -241,7 +243,7 @@ def main_bot(dp):
                                                                          'перезапустить приложение на вашем '
                                                                          'компьютере.\n\nВведите новый код:',
                                                    reply_markup=types.ReplyKeyboardRemove())
-                            BASE_REG[message.from_user.id] = True
+                            BASE_REG[str(message.from_user.id)] = True
                             BASE_SESSIONS.pop(idx)
                             BASE_LISTEN.pop(idx)
                     elif message.text == '<<<':
@@ -268,16 +270,24 @@ def main_bot(dp):
                     await bot.send_message(message.from_user.id,
                                            'Вы не прошли регистрацию!\nИспользуйте команду /start или /reg')
 
-        print(message.text)
-        print([i.get_room_id() for i in BASE_SESSIONS], [i.get_address() for i in BASE_SESSIONS],
-              [i.get_uid() for i in BASE_SESSIONS])
-        print(BASE_LISTEN)
-        print(BASE_REG)
+
+def json_update():
+    global BASE_REG
+    with open('users.json') as json_file:
+        BASE_REG = json.load(json_file)
+        for i in BASE_REG.keys():
+            BASE_REG[i] = True
+    while True:
+        with open('users.json', 'w') as outfile:
+            json.dump(BASE_REG, outfile)
+        time.sleep(10)
 
 
 if __name__ == '__main__':
     conns_thread = Thread(target=conns, args=(sock,), daemon=True)
     bot_thread = Thread(target=main_bot, args=(dp,))
+    json_save = Thread(target=json_update, daemon=True)
+    json_save.start()
     conns_thread.start()
     bot_thread.start()
     executor.start_polling(dp)

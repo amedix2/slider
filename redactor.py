@@ -60,6 +60,7 @@ class redactor_start(QWidget):
         self.open_file('')
 '''
 
+
 class redactor_main(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -129,7 +130,6 @@ class redactor_main(QMainWindow):
 
         self.btn_file_open.clicked.connect(self.open_file)
 
-
     def open_file(self):
         self.path = QFileDialog.getOpenFileName(directory='my_docs', filter='*.txt')[0]
         print(self.path)
@@ -140,8 +140,6 @@ class redactor_main(QMainWindow):
                 QMessageBox.critical(self, 'too large file', 'Ваш файл превышает размер 100кб')
             config.app_settings.set_path(self, self.path)
             print(config.app_settings.name)
-
-
 
 
 if __name__ == '__main__':
