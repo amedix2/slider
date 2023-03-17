@@ -12,7 +12,7 @@ import keyboard
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGraphicsDropShadowEffect, QMainWindow, QLabel, \
-    QFileDialog, QMessageBox, QScrollBar
+    QFileDialog, QMessageBox, QScrollBar, QVBoxLayout, QScrollArea, QLineEdit
 
 import config
 
@@ -142,11 +142,17 @@ class main_window(QMainWindow):
         self.btn_b.setStyleSheet(f'background-color: {self.color_btn}; border-radius: 15')
         self.btn_b.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=15, xOffset=7, yOffset=7))
 
+        self.btn_settings = QPushButton('⚙', self)
+        self.btn_settings.setFont(QFont("Times",11, QFont.Bold))
+        self.btn_settings.resize(20, 20)
+        self.btn_settings.move(0, 0)
+
         self.btn_c.clicked.connect(self.con)
         self.btn_f.clicked.connect(self.file)
         self.btn_q.clicked.connect(self.qr)
         self.btn_b.clicked.connect(self.fb)
         self.btn_i.clicked.connect(self.ins)
+        self.btn_settings.clicked.connect(self.set)
 
     def file(self):
         self.win_file = file(self)
@@ -161,6 +167,10 @@ class main_window(QMainWindow):
             opened_con = True
             self.connection = connection(self)
             self.connection.show()
+
+    def set(self):
+        self.settings = settings(self)
+        self.settings.show()
 
     def qr(self):
         os.system('start qr-code.jpg')
@@ -339,6 +349,54 @@ class instruction(QWidget):
         self.setGeometry(1380, 240, 520, 380)
         self.setWindowTitle('Instruction')
         self.setStyleSheet(f'background-color: #ffffff;')
+
+        self.label = QLabel(self)
+        self.label.setText(f'1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n2\n2\n2\n2\n2\n2\n2\n2\n2\n2\n2\n2\n2\n2\n2\n3\n3\n3\n3\n3\n3\n3\n3\n3\n3\n3\n')
+
+        self.scroll_area = QScrollArea(self)
+        self.scroll_area.setWidget(self.label)
+        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+        self.scrollbar = QScrollBar(Qt.Vertical, self)
+        self.scrollbar.setMaximum(self.scroll_area.verticalScrollBar().maximum())
+
+        self.v_layout = QVBoxLayout(self)
+        self.v_layout.addWidget(self.scroll_area)
+        self.v_layout.addWidget(self.scrollbar)
+
+        self.scrollbar.valueChanged.connect(self.sync_func)
+
+    def sync_func(self):
+        self.scroll_area.horizontalScrollBar().setValue(self.scrollbar.value())
+
+
+class settings(QWidget):
+    def __init__(self, *a):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
+
+        self.setGeometry(20, 240, 520, 200)
+        self.setWindowTitle('Settings')
+        self.setStyleSheet(f'background-color: {config.colors.super_light_grey}')
+
+        self.ip = QLineEdit(self)
+        self.ip.move(20, 20)
+        self.ip.resize(260, 50)
+        self.ip.setStyleSheet(f'background-color: {config.colors.light_grey}; border-radius: 15')
+        self.ip.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=15, xOffset=7, yOffset=7))
+        self.ip.setPlaceholderText("Введите ip")
+        self.ip.setFont(QFont("Times", 20, QFont.Bold))
+        self.ip.setAlignment(Qt.AlignCenter)
+
+        self.saveIp = QPushButton('Сохранить', self)
+        self.saveIp.setFont(QFont("Times", 23, QFont.Bold))
+        self.saveIp.resize(200, 50)
+        self.saveIp.move(300, 20)
+        self.saveIp.setStyleSheet(f'background-color: {config.colors.light_grey}; border-radius: 15')
+        self.saveIp.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=15, xOffset=7, yOffset=7))
+
 
 
 if __name__ == '__main__':
