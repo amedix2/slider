@@ -62,7 +62,6 @@ class session:
         return self.text_lst[self.idx]
 
     def change_idx(self, val):
-        print(self.text_lst)
         self.idx += val
         if self.idx < 0:
             self.idx = 0
@@ -74,15 +73,6 @@ def key_generator(n):
     s = ''
     for i in range(n):
         s += chr(random.randint(65, 90))
-    return s
-
-
-def replace_shit(s):
-    for i in range(1, len(s) - 1):
-        slash = chr(92)
-        if i == slash and i + 1 == 'n':
-            print(1)
-            s = s[:i] + s[i + 2:]
     return s
 
 
@@ -114,6 +104,9 @@ def conns(sock):
             temp_str = list(filter(lambda x: len(x) != 0, temp_str))
             if len(temp_str) != 0:
                 temp_str.append('Конец презентации')
+                print(f'file received from {addr}')
+            else:
+                print(f'no file from {addr}')
             r = key_generator(4)
             conn.send(bytes(r, 'utf-8'))
             print(f'room_id sent to {addr}')
@@ -135,9 +128,9 @@ def disconns(conn, addr):
             break
     if idx != -1:
         params = {
-            'chat_id': int(BASE_SESSIONS[idx].get_uid()),
+            'chat_id': BASE_SESSIONS[idx].get_uid(),
             'text': 'Удаленный компьютер прервал соединение.\nПожалуйста, поддержите наш проект:\n\n4584 4328 4684 '
-                    '7920\n\nМы тоже хотим кушать и развивать наше приложени.\n\nВведите новый код для подключения:'
+                    '7920\n\nМы тоже хотим кушать и развивать наше приложение.\n\nВведите новый код для подключения:'
         }
 
         response = requests.get('https://api.telegram.org/bot' + TOKEN + '/sendMessage', params=params)

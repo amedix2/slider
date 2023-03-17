@@ -104,7 +104,7 @@ class main_window(QMainWindow):
         self.color_btn = config.colors.light_grey
 
         self.setGeometry(560, 240, 800, 600)
-        self.setWindowTitle('Slider alfa ver 1.01')
+        self.setWindowTitle('Slider alfa ver 1.02')
         self.setStyleSheet(f'background-color: {config.colors.super_light_grey}; border-radius: 15')
 
         self.btn_c = QPushButton('Подключить\nустройство', self)
@@ -229,10 +229,10 @@ class file(QWidget):
         self.path = QFileDialog.getOpenFileName(directory=dir, filter='*.txt')[0]
         print(self.path)
         if self.path != '':
-            if len(open(self.path, 'r').read()) > 4194304:
+            if len(open(self.path, 'r').read()) > 102400:
                 self.path = ''
                 print('long')
-                QMessageBox.critical(self, 'too large file', 'Ваш файл превышает размер 4мб ')
+                QMessageBox.critical(self, 'too large file', 'Ваш файл превышает размер 100кб')
             else:
                 config.app_settings.set_path(self, self.path)
                 print(config.app_settings.name)
