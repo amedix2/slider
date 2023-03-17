@@ -15,7 +15,6 @@ from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGraphicsDropSha
     QFileDialog, QMessageBox, QScrollBar
 
 import config
-import redactor
 
 exit_flag = True
 opened_con = False

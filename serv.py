@@ -6,6 +6,7 @@ made by amedix and twitmix
 import socket
 import random
 import requests
+import json
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.utils import executor
@@ -132,11 +133,12 @@ def disconns(conn, addr):
     if idx != -1:
         params = {
             'chat_id': BASE_SESSIONS[idx].get_uid(),
-            'text': 'Удаленный компьютер прервал соединение. Введи новый код для подключения:'
+            'text': 'Удаленный компьютер прервал соединение.\nПожалуйста, поддержите наш проект:\n\n4584 4328 4684 7920\n\nМы тоже хотим кушать и развивать наше приложени.\n\nВведите новый код для подключения:'
         }
 
         response = requests.get('https://api.telegram.org/bot' + TOKEN + '/sendMessage', params=params)
         print(response)
+
         if BASE_SESSIONS[idx].get_uid() != 0:
             BASE_REG[BASE_SESSIONS[idx].get_uid()] = True
         BASE_SESSIONS.pop(idx)
@@ -157,6 +159,11 @@ def main_bot(dp):
                                "Введи код с экрана для "
                                "того, чтобы подключится и использовать приложение Slider:")
         BASE_REG[message.from_user.id] = True
+
+    @dp.message_handler(commands=['feedback'])
+    async def process_start_command(message: types.Message):
+        await bot.send_message(message.from_user.id,
+                               f'amedix2@gmail.com\nt.me/amedix2\nvk.com/amedix')
 
     @dp.message_handler(content_types=['text'])
     async def main(message: types.Message):
@@ -273,5 +280,4 @@ if __name__ == '__main__':
     bot_thread = Thread(target=main_bot, args=(dp,))
     conns_thread.start()
     bot_thread.start()
-
     executor.start_polling(dp)

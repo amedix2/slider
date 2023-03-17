@@ -1,8 +1,9 @@
-from pathlib import Path
+#   from pathlib import Path
 
 
 class colors:
-    light_grey = '#DEDEDE'
+    light_grey = '#DDDDDD'
+    super_light_grey = '#EFEFEF'
 
 
 class app_settings:
