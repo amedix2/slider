@@ -44,7 +44,7 @@ def send_file(sock, key):
     print('path:', path)
     if path != '':
         try:
-            file_data = open(path, "r", encoding='utf-8').read()
+            file_data = open(path, "r").read()
             i = 4096
             while True:
                 text = file_data[i - 4096:i]
@@ -105,7 +105,7 @@ class main_window(QMainWindow):
         self.color_btn = config.colors.color_supp
 
         self.setGeometry(560, 240, 800, 600)
-        self.setWindowTitle('Slider alfa ver 1.02')
+        self.setWindowTitle(config.app_settings.version)
         self.setStyleSheet(f'background-color: {config.colors.color_main}; border-radius: 15')
 
         self.btn_c = QPushButton('Подключить\nустройство', self)
@@ -227,7 +227,7 @@ class file(QWidget):
         th_redactor.start()
 
     def open_file(self, dir):
-        self.path = QFileDialog.getOpenFileName(directory=dir, filter='*.txt')[0]
+        self.path = QFileDialog.getOpenFileName(directory=dir, filter='*.txt, *.sli')[0]
         print(self.path)
         if self.path != '':
             if len(open(self.path, 'r').read()) > 102400:
@@ -353,9 +353,8 @@ class settings(QWidget):
         self.switchColor.setCheckable(True)
         self.switchColor.setStyleSheet(f'background-color: {config.colors.light_grey}; border-radius: 15')
         self.switchColor.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=15, xOffset=7, yOffset=7))
-        self.update()
-        self.show()
 
+'''
         self.saveIp.clicked.connect(self.SaveIp)
         self.switchColor.clicked.connect(self.switchTheme)
 
@@ -369,7 +368,7 @@ class settings(QWidget):
 
     def SaveIp(self):
         config.app_settings.set_ip(self.ip.text())
-
+'''
 
 class instruction(QWidget):
     def __init__(self, *a):

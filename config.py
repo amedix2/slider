@@ -23,9 +23,11 @@ class colors:
 
 
 class app_settings:
+    version = 'Slider alfa ver 1.03'
+    ip_serv = '45.9.41.237'
+
     path = ''
     name = ''
-    ip_serv = '45.9.41.237'
 
     @staticmethod
     def set_path(p):

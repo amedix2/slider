@@ -17,7 +17,7 @@ from threading import Thread
 
 sock = socket.socket()
 
-sock.bind(('192.168.2.17', 11111))
+sock.bind(('45.9.41.237', 11111))
 print(socket.gethostbyname(socket.gethostname()))
 sock.listen(10000)
 
@@ -85,7 +85,6 @@ def get_file(conn, key):
             s += data
             if s.find(bytes(key, 'utf-8')) != -1:
                 s = s.decode('utf-8')
-                s = s.replace('\n', '').strip()
                 return s[:-16].split('###')
     except Exception:
         print('get_file exeption')
@@ -101,7 +100,6 @@ def conns(sock):
             key = key_generator(16)
             conn.send(bytes(key, 'utf-8'))
             temp_str = get_file(conn, key)
-            temp_str = list(filter(lambda x: len(x) != 0, temp_str))
             if len(temp_str) != 0:
                 temp_str.append('Конец презентации')
                 print(f'file received from {addr}')
