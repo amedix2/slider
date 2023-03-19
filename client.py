@@ -9,10 +9,11 @@ import sys
 from pathlib import Path
 from threading import Thread
 import keyboard
+from PyQt5 import QtGui
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QPalette, QColor
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGraphicsDropShadowEffect, QMainWindow, QLabel, \
-    QFileDialog, QMessageBox, QScrollBar, QVBoxLayout, QScrollArea, QLineEdit
+    QFileDialog, QMessageBox, QScrollBar, QVBoxLayout, QScrollArea, QLineEdit, QTextEdit, QGridLayout
 
 import config
 
@@ -107,6 +108,7 @@ class main_window(QMainWindow):
         self.setWindowTitle('Slider alfa ver 1.02')
         self.setStyleSheet(f'background-color: {config.colors.super_light_grey}; border-radius: 15')
 
+
         self.btn_c = QPushButton('Подключить\nустройство', self)
         self.btn_c.setFont(QFont("Times", 65, QFont.Bold))
         self.btn_c.resize(760, 300)
@@ -135,24 +137,18 @@ class main_window(QMainWindow):
         self.btn_q.setStyleSheet(f'background-color: {self.color_btn}; border-radius: 15')
         self.btn_q.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=15, xOffset=7, yOffset=7))
 
-        self.btn_b = QPushButton('Обратная связь', self)
-        self.btn_b.setFont(QFont("Times", 23, QFont.Bold))
-        self.btn_b.resize(370, 110)
-        self.btn_b.move(410, 470)
-        self.btn_b.setStyleSheet(f'background-color: {self.color_btn}; border-radius: 15')
-        self.btn_b.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=15, xOffset=7, yOffset=7))
-
-        self.btn_settings = QPushButton('⚙', self)
-        self.btn_settings.setFont(QFont("Times",11, QFont.Bold))
-        self.btn_settings.resize(20, 20)
-        self.btn_settings.move(0, 0)
+        self.btn_set = QPushButton('Настройки', self)
+        self.btn_set.setFont(QFont("Times", 23, QFont.Bold))
+        self.btn_set.resize(370, 110)
+        self.btn_set.move(410, 470)
+        self.btn_set.setStyleSheet(f'background-color: {self.color_btn}; border-radius: 15')
+        self.btn_set.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=15, xOffset=7, yOffset=7))
 
         self.btn_c.clicked.connect(self.con)
         self.btn_f.clicked.connect(self.file)
         self.btn_q.clicked.connect(self.qr)
-        self.btn_b.clicked.connect(self.fb)
+        self.btn_set.clicked.connect(self.set)
         self.btn_i.clicked.connect(self.ins)
-        self.btn_settings.clicked.connect(self.set)
 
     def file(self):
         self.win_file = file(self)
@@ -168,16 +164,12 @@ class main_window(QMainWindow):
             self.connection = connection(self)
             self.connection.show()
 
-    def set(self):
-        self.settings = settings(self)
-        self.settings.show()
-
     def qr(self):
         os.system('start qr-code.jpg')
 
-    def fb(self):
-        self.feedback = feedback(self)
-        self.feedback.show()
+    def set(self):
+        self.settings = settings(self)
+        self.settings.show()
 
     def ins(self):
         self.instruction = instruction(self)
@@ -322,67 +314,25 @@ class connection(QWidget):
             pass
 
 
-class feedback(QWidget):
-    def __init__(self, *a):
-        super().__init__()
-        self.initUI()
-
-    def initUI(self):
-        self.setGeometry(1380, 670, 520, 170)
-        self.setWindowTitle('Feedback')
-        self.setStyleSheet(f'background-color: {config.colors.light_grey};')
-
-        self.us = QLabel(self)
-        self.us.setFont(QFont("Times", 30, QFont.Bold))
-        self.us.setText(f'amedix2@gmail.com\nt.me/amedix2\nvk.com/amedix')
-        self.us.resize(520, 170)
-        self.us.move(0, 0)
-        self.us.setAlignment(Qt.AlignCenter)
-
-
-class instruction(QWidget):
-    def __init__(self, *a):
-        super().__init__()
-        self.initUI()
-
-    def initUI(self):
-        self.setGeometry(1380, 240, 520, 380)
-        self.setWindowTitle('Instruction')
-        self.setStyleSheet(f'background-color: #ffffff;')
-
-        self.label = QLabel(self)
-        self.label.setText(f'1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n1\n2\n2\n2\n2\n2\n2\n2\n2\n2\n2\n2\n2\n2\n2\n2\n3\n3\n3\n3\n3\n3\n3\n3\n3\n3\n3\n')
-
-        self.scroll_area = QScrollArea(self)
-        self.scroll_area.setWidget(self.label)
-        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-
-        self.scrollbar = QScrollBar(Qt.Vertical, self)
-        self.scrollbar.setMaximum(self.scroll_area.verticalScrollBar().maximum())
-
-        self.v_layout = QVBoxLayout(self)
-        self.v_layout.addWidget(self.scroll_area)
-        self.v_layout.addWidget(self.scrollbar)
-
-        self.scrollbar.valueChanged.connect(self.sync_func)
-
-    def sync_func(self):
-        self.scroll_area.horizontalScrollBar().setValue(self.scrollbar.value())
-
-
 class settings(QWidget):
     def __init__(self, *a):
         super().__init__()
         self.initUI()
 
     def initUI(self):
+        self.setGeometry(700, 350, 520, 380)
+        self.setWindowTitle('Feedback')
+        self.setStyleSheet(f'background-color: {config.colors.super_light_grey};')
 
-        self.setGeometry(20, 240, 520, 200)
-        self.setWindowTitle('Settings')
-        self.setStyleSheet(f'background-color: {config.colors.super_light_grey}')
+        self.us = QLabel(self)
+        self.us.setFont(QFont("Times", 27, QFont.Bold))
+        self.us.setText(f'Обратная связь:\namedix2@gmail.com\nt.me/amedix2\nvk.com/amedix')
+        self.us.resize(520, 200)
+        self.us.move(0, 180)
+        self.us.setAlignment(Qt.AlignCenter)
 
         self.ip = QLineEdit(self)
-        self.ip.move(20, 20)
+        self.ip.move(20, 30)
         self.ip.resize(260, 50)
         self.ip.setStyleSheet(f'background-color: {config.colors.light_grey}; border-radius: 15')
         self.ip.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=15, xOffset=7, yOffset=7))
@@ -393,9 +343,44 @@ class settings(QWidget):
         self.saveIp = QPushButton('Сохранить', self)
         self.saveIp.setFont(QFont("Times", 23, QFont.Bold))
         self.saveIp.resize(200, 50)
-        self.saveIp.move(300, 20)
+        self.saveIp.move(300, 30)
         self.saveIp.setStyleSheet(f'background-color: {config.colors.light_grey}; border-radius: 15')
         self.saveIp.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=15, xOffset=7, yOffset=7))
+
+        self.switchColor = QPushButton("Тёмная тема", self)
+        self.switchColor.setFont(QFont("Times", 21, QFont.Bold))
+        self.switchColor.resize(200, 50)
+        self.switchColor.move(40, 110)
+        self.switchColor.setCheckable(True)
+        self.switchColor.setStyleSheet(f'background-color: {config.colors.light_grey}; border-radius: 15')
+        self.switchColor.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=15, xOffset=7, yOffset=7))
+        self.update()
+        self.show()
+
+        self.saveIp.clicked.connect(self.SaveIp)
+        self.switchColor.clicked.connect(self.switchTheme)
+
+    def switchTheme(self):
+        if self.switchColor.isChecked():
+            self.switchColor.setText("Светлая тема")
+        else:
+            self.switchColor.setText("Тёмная тема")
+
+    def SaveIp(self):
+        self.ip_text = self.ip.text()
+
+class instruction(QWidget):
+    def __init__(self, *a):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
+        self.setGeometry(1380, 240, 520, 600)
+        self.setWindowTitle('Instruction')
+        self.setStyleSheet(f'background-color: {config.colors.super_light_grey};')
+
+
+
 
 
 
