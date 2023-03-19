@@ -21,7 +21,6 @@ class colors:
 
         QMessageBox.critical(self, 'restart an app', 'Перезапустите приложение, чтобы изменения вступили в силу')
 
-
 class app_settings:
     path = ''
     name = ''

@@ -102,12 +102,11 @@ class main_window(QMainWindow):
         self.initUI()
 
     def initUI(self):
-        self.color_btn = config.colors.light_grey
+        self.color_btn = config.colors.color_supp
 
         self.setGeometry(560, 240, 800, 600)
         self.setWindowTitle('Slider alfa ver 1.02')
-        self.setStyleSheet(f'background-color: {config.colors.super_light_grey}; border-radius: 15')
-
+        self.setStyleSheet(f'background-color: {config.colors.color_main}; border-radius: 15')
 
         self.btn_c = QPushButton('Подключить\nустройство', self)
         self.btn_c.setFont(QFont("Times", 65, QFont.Bold))
@@ -236,7 +235,7 @@ class file(QWidget):
                 print('long')
                 QMessageBox.critical(self, 'too large file', 'Ваш файл превышает размер 100кб')
             else:
-                config.app_settings.set_path(self, self.path)
+                config.app_settings.set_path(self.path)
                 print(config.app_settings.name)
                 self.close()
 
@@ -362,12 +361,15 @@ class settings(QWidget):
 
     def switchTheme(self):
         if self.switchColor.isChecked():
+            config.colors.set_theme(self, 'dark')
             self.switchColor.setText("Светлая тема")
         else:
+            config.colors.set_theme(self, 'light')
             self.switchColor.setText("Тёмная тема")
 
     def SaveIp(self):
-        self.ip_text = self.ip.text()
+        config.app_settings.set_ip(self.ip.text())
+
 
 class instruction(QWidget):
     def __init__(self, *a):
@@ -378,10 +380,6 @@ class instruction(QWidget):
         self.setGeometry(1380, 240, 520, 600)
         self.setWindowTitle('Instruction')
         self.setStyleSheet(f'background-color: {config.colors.super_light_grey};')
-
-
-
-
 
 
 if __name__ == '__main__':
