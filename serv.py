@@ -6,9 +6,9 @@ made by amedix and twitmix
 import socket
 import random
 import time
-
 import requests
 import json
+import os
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.utils import executor
@@ -18,6 +18,7 @@ from threading import Thread
 sock = socket.socket()
 
 sock.bind(('192.168.2.17', 11111))
+print(socket.gethostbyname(socket.gethostname()))
 sock.listen(10000)
 
 print('server is running')
@@ -87,7 +88,7 @@ def get_file(conn, key):
                 s = s.replace('\n', '').strip()
                 return s[:-16].split('###')
     except Exception:
-        print('exeption((((((')
+        print('get_file exeption')
         return s[:-16].split('###')
 
 
@@ -100,7 +101,6 @@ def conns(sock):
             key = key_generator(16)
             conn.send(bytes(key, 'utf-8'))
             temp_str = get_file(conn, key)
-            print(f'file received from {addr}')
             temp_str = list(filter(lambda x: len(x) != 0, temp_str))
             if len(temp_str) != 0:
                 temp_str.append('Конец презентации')
@@ -119,9 +119,8 @@ def conns(sock):
 
 def disconns(conn, addr):
     data = conn.recv(4)
-    print(data, addr)
-    print('try to dis')
     idx = -1
+    print(data, addr)
     for i in range(len(BASE_SESSIONS)):
         if addr == BASE_SESSIONS[i].get_address():
             idx = i
@@ -136,8 +135,10 @@ def disconns(conn, addr):
         response = requests.get('https://api.telegram.org/bot' + TOKEN + '/sendMessage', params=params)
         print(response)
 
-        if BASE_SESSIONS[idx].get_uid() != '':
+        try:
             BASE_REG[BASE_SESSIONS[idx].get_uid()] = True
+        except Exception:
+            pass
         BASE_SESSIONS.pop(idx)
         BASE_LISTEN.pop(idx)
 
@@ -276,11 +277,28 @@ def json_update():
         time.sleep(10)
 
 
+def cmd():
+    global BASE_SESSIONS, BASE_LISTEN, BASE_REG
+    while True:
+        try:
+            command = input()
+            if command == 'exit':
+                os.abort()
+            if command == 'base':
+                print(BASE_SESSIONS)
+                print(BASE_LISTEN)
+                print(BASE_REG)
+        except Exception:
+            pass
+
+
 if __name__ == '__main__':
     conns_thread = Thread(target=conns, args=(sock,), daemon=True)
-    bot_thread = Thread(target=main_bot, args=(dp,))
+    bot_thread = Thread(target=main_bot, args=(dp,), daemon=True)
     json_save = Thread(target=json_update, daemon=True)
+    cmd = Thread(target=cmd)
     json_save.start()
+    cmd.start()
     conns_thread.start()
     bot_thread.start()
     executor.start_polling(dp)
