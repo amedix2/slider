@@ -94,7 +94,7 @@ def GUI():
 
 
 def redactor_launch():
-    os.system('redactor.py')
+    os.system('redactor.exe')
 
 
 class main_window(QMainWindow):
