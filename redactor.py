@@ -90,11 +90,11 @@ class redactor_main(QMainWindow):
         self.prevSlide.setStyleSheet(f'background-color: {config.colors.color_supp}; border-radius: 15')
         self.prevSlide.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=3, xOffset=4, yOffset=4))
 
-        self.slides_right.move(530, 80)
+        self.slides_right.move(530, 87)
         self.slides_right.resize(10000, 50)
         self.slides_right.setFont(QFont("Times", 30, QFont.Bold))
 
-        self.slides_left.move(-10000, 80)
+        self.slides_left.move(-10000, 87)
         self.slides_left.resize(10270, 50)
         self.slides_left.setFont(QFont("Times", 30, QFont.Bold))
         self.slides_left.setAlignment(Qt.AlignRight)
@@ -133,8 +133,8 @@ class redactor_main(QMainWindow):
             QMessageBox.critical(self, 'unnamed file', 'Укажите имя файла')
 
     def slides_count(self):
-        self.slides_right.setText(". " * (len(self.data) - self.index - 1))
-        self.slides_left.setText(" ." * self.index)
+        self.slides_right.setText("○ " * (len(self.data) - self.index - 1))
+        self.slides_left.setText(" ○" * self.index)
 
     def next(self):
         self.data[self.index] = self.slideText.toPlainText()

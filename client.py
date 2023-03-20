@@ -64,6 +64,7 @@ def conn_to_serv(selfobj):
     global exit_flag, sock
     sock = socket.socket()
     try:
+        print(config.app_settings.ip_serv)
         sock.connect((config.app_settings.ip_serv, 11111))
         key = str(sock.recv(16))[2:-1]
         connection.set_room(selfobj, 'load')
@@ -327,7 +328,7 @@ class settings(QWidget):
         self.us.setFont(QFont("Times", 27, QFont.Bold))
         self.us.setText(f'Обратная связь:\namedix2@gmail.com\nt.me/amedix2\nvk.com/amedix')
         self.us.resize(520, 200)
-        self.us.move(0, 180)
+        self.us.move(0, 130)
         self.us.setAlignment(Qt.AlignCenter)
 
         self.ip = QLineEdit(self)
@@ -336,6 +337,7 @@ class settings(QWidget):
         self.ip.setStyleSheet(f'background-color: {config.colors.light_grey}; border-radius: 15')
         self.ip.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=3, xOffset=4, yOffset=4))
         self.ip.setPlaceholderText("Введите ip")
+        self.ip.setText(config.app_settings.ip_serv)
         self.ip.setFont(QFont("Times", 20, QFont.Bold))
         self.ip.setAlignment(Qt.AlignCenter)
 
@@ -346,6 +348,14 @@ class settings(QWidget):
         self.saveIp.setStyleSheet(f'background-color: {config.colors.light_grey}; border-radius: 15')
         self.saveIp.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=3, xOffset=4, yOffset=4))
 
+        self.saveIp.clicked.connect(self.save_ip)
+
+    def save_ip(self):
+        config.app_settings.set_ip(self.ip.text())
+        QMessageBox.about(self, 'settings applied', 'Настройки были успешно сохранены')
+        print(config.app_settings.ip_serv)
+
+'''
         self.switchColor = QPushButton("Тёмная тема", self)
         self.switchColor.setFont(QFont("Times", 21, QFont.Bold))
         self.switchColor.resize(200, 50)
@@ -353,6 +363,8 @@ class settings(QWidget):
         self.switchColor.setCheckable(True)
         self.switchColor.setStyleSheet(f'background-color: {config.colors.light_grey}; border-radius: 15')
         self.switchColor.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=3, xOffset=4, yOffset=4))
+'''
+
 
 '''
         self.saveIp.clicked.connect(self.SaveIp)
@@ -365,9 +377,6 @@ class settings(QWidget):
         else:
             config.colors.set_theme(self, 'light')
             self.switchColor.setText("Тёмная тема")
-
-    def SaveIp(self):
-        config.app_settings.set_ip(self.ip.text())
 '''
 
 
