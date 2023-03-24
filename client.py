@@ -520,7 +520,7 @@ class redactor_main(QWidget):
                 self.data = open(self.path, 'r').read().split('###')
                 print(self.data)
                 self.index = 0
-                self.slideName.setText(f'Слайд {self.index}({len(self.data)})')
+                self.slideName.setText(f'Слайд {self.index + 1}({len(self.data)})')
                 self.slideText.clear()
                 self.slideText.appendPlainText(self.data[self.index])
                 self.fileName.setText(self.path[self.path.rfind('/') + 1:self.path.rfind('.')])
