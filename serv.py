@@ -275,26 +275,10 @@ def json_update():
         time.sleep(10)
 
 
-def cmd():
-    global BASE_SESSIONS, BASE_LISTEN, BASE_REG
-    while True:
-        try:
-            command = input()
-            if command == 'exit':
-                os.abort()
-            if command == 'base':
-                print(BASE_SESSIONS)
-                print(BASE_LISTEN)
-                print(BASE_REG)
-        except Exception:
-            pass
-
-
 if __name__ == '__main__':
     conns_thread = Thread(target=conns, args=(sock,), daemon=True)
     bot_thread = Thread(target=main_bot, args=(dp,), daemon=True)
     json_save = Thread(target=json_update, daemon=True)
-    cmd = Thread(target=cmd)
     json_save.start()
     cmd.start()
     conns_thread.start()
