@@ -23,7 +23,7 @@ class colors:
 
 
 class app_settings:
-    version = 'Slider alfa ver 1.04'
+    version = 'Slider beta 1.1'
     ip_serv = '45.9.41.237'
 
     path = ''

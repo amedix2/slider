@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import QApplication, QPushButton, QLabel, \
 import config
 
 
-class redactor_main(QMainWindow):
+class redactor_main():
     def __init__(self):
         super().__init__()
         self.slides_left = QLabel(self)
@@ -61,7 +61,7 @@ class redactor_main(QMainWindow):
         self.slideName.resize(240, 50)
         self.slideName.setStyleSheet(f'background-color: {config.colors.color_supp}; border-radius: 15')
         self.slideName.setGraphicsEffect(QGraphicsDropShadowEffect(blurRadius=3, xOffset=4, yOffset=4))
-        self.slideName.setText("Слайд 0")
+        self.slideName.setText("Слайд 1(1)")
         self.slideName.setFont(QFont("Times", 15, QFont.Bold))
         self.slideName.setAlignment(Qt.AlignCenter)
 
@@ -117,7 +117,7 @@ class redactor_main(QMainWindow):
                 self.data = open(self.path, 'r').read().split('###')
                 print(self.data)
                 self.index = 0
-                self.slideName.setText(f'Слайд {self.index}')
+                self.slideName.setText(f'Слайд {self.index}({len(self.data)})')
                 self.slideText.clear()
                 self.slideText.appendPlainText(self.data[self.index])
                 self.fileName.setText(self.path[self.path.rfind('/') + 1:self.path.rfind('.')])
@@ -143,7 +143,7 @@ class redactor_main(QMainWindow):
         if self.index == len(self.data):
             self.data.append('')
         self.slideText.clear()
-        self.slideName.setText(f'Слайд {self.index}')
+        self.slideName.setText(f'Слайд {self.index + 1}({len(self.data)})')
         if self.data[self.index] != '':
             self.slideText.appendPlainText(self.data[self.index])
 
@@ -153,7 +153,7 @@ class redactor_main(QMainWindow):
         if self.index == -1:
             self.index = 0
         self.slides_count()
-        self.slideName.setText(f'Слайд {self.index}')
+        self.slideName.setText(f'Слайд {self.index + 1}({len(self.data)})')
         self.slideText.clear()
         self.slideText.appendPlainText(self.data[self.index])
 
@@ -164,7 +164,7 @@ class redactor_main(QMainWindow):
                 if self.index == len(self.data):
                     self.index -= 1
                 self.slides_count()
-                self.slideName.setText(f'Слайд {self.index}')
+                self.slideName.setText(f'Слайд {self.index + 1}({len(self.data)})')
             self.slideText.clear()
             self.slideText.appendPlainText(self.data[self.index])
         else:
