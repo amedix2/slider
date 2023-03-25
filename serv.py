@@ -144,17 +144,23 @@ def disconns(conn, addr):
 def main_bot(dp):
     @dp.message_handler(commands=['start'])
     async def process_start_command(message: types.Message):
-        await bot.send_message(message.from_user.id,
-                               "Привет!\nЭтот бот управляет презентацией\n\nВведи код с экрана для "
+        if str(message.from_user.id) in BASE_REG.keys():
+            await bot.send_message(message.chat.id, 'Вы уже зарегестрированны в системе.')
+        else:
+            await bot.send_message(message.from_user.id,
+                               "Привет!\nЭтот бот управляет презентацией.\n\nВведите код с экрана для "
                                "того, чтобы подключится и использовать приложение Slider:")
-        BASE_REG[str(message.from_user.id)] = True
+            BASE_REG[str(message.from_user.id)] = True
 
     @dp.message_handler(commands=['reg'])
     async def process_start_command(message: types.Message):
-        await bot.send_message(message.from_user.id,
+        if str(message.from_user.id) in BASE_REG.keys():
+            await bot.send_message(message.chat.id, 'Вы уже зарегестрированны в системе.')
+        else:
+            await bot.send_message(message.from_user.id,
                                "Введи код с экрана для "
                                "того, чтобы подключится и использовать приложение Slider:")
-        BASE_REG[str(message.from_user.id)] = True
+            BASE_REG[str(message.from_user.id)] = True
 
     @dp.message_handler(commands=['feedback'])
     async def process_start_command(message: types.Message):
@@ -280,7 +286,6 @@ if __name__ == '__main__':
     bot_thread = Thread(target=main_bot, args=(dp,), daemon=True)
     json_save = Thread(target=json_update, daemon=True)
     json_save.start()
-    cmd.start()
     conns_thread.start()
     bot_thread.start()
     executor.start_polling(dp)
