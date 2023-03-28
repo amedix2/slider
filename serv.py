@@ -8,6 +8,7 @@ import random
 import time
 import requests
 import json
+import os
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.utils import executor
