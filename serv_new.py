@@ -11,7 +11,7 @@ from threading import Thread
 
 sock = socket.socket()
 
-sock.bind(('45.9.41.237', 11111))
+sock.bind(('192.168.2.46', 11111))
 sock.listen(10000)
 print('server is running')
 
@@ -120,7 +120,7 @@ def ds():
     while True:
         try:
             for i in range(len(BASE_LISTEN)):
-                if not BASE_LISTEN[i].isAlive():
+                if not BASE_LISTEN[i].is_alive():
                     params = {
                         'chat_id': BASE_SESSIONS[i].get_uid(),
                         'text': 'Удаленный компьютер прервал соединение.\n'
@@ -141,6 +141,7 @@ def ds():
                     BASE_SESSIONS.pop(i)
         except Exception:
             pass
+        time.sleep(0.2)
 
 
 def json_update():
