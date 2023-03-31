@@ -15,7 +15,7 @@ sock.bind(('192.168.2.46', 11111))
 sock.listen(10000)
 print('server is running')
 
-TOKEN = '5937626790:AAGLqO3_UbPa9I144s7sBp28Ddi7ymcG4NI'
+TOKEN = '5937626790:AAF6zX9Bh_KYdqP-WJhfU-pqF84AlodJ3Nw'
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 
